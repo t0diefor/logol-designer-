@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo Lab — Personal Logo Design Lab</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="app-header">
+  <div class="app-header__title">
+    <h1>Logo Lab</h1>
+    <p>Explore logo concepts. Nothing here is final — save as many ideas as you like.</p>
+  </div>
+  <div class="app-header__actions">
+    <button type="button" id="btn-export-svg" class="btn btn--primary">Download SVG</button>
+    <button type="button" id="btn-save-concept" class="btn">Save to gallery</button>
+    <button type="button" id="btn-reset" class="btn btn--quiet">Reset to defaults</button>
+  </div>
+</header>
+
+<!-- Warning shown only if localStorage is unavailable -->
+<div id="storage-warning" class="banner banner--warn" role="status" hidden>
+  <strong>Gallery cannot be saved in this browser.</strong>
+  Saving is disabled by your browser settings or by the <code>file://</code> security policy.
+  Concepts you save will be kept for this session only and lost when you close the tab.
+  Use <em>Export gallery as JSON</em> to keep them.
+</div>
+
+<main class="layout">
+
+  <!-- ================= CONTROL PANEL ================= -->
+  <aside class="panel" aria-label="Logo controls">
+
+    <!-- ---- Identity ---- -->
+    <section class="group">
+      <h2 class="group__title">1. Your details</h2>
+
+      <div class="field">
+        <label for="creatorName">Creator name</label>
+        <input type="text" id="creatorName" data-key="creatorName" maxlength="60" autocomplete="off">
+        <p class="hint">Used for the downloaded file name.</p>
+      </div>
+
+      <div class="field">
+        <label for="initials">Initials</label>
+        <input type="text" id="initials" data-key="initials" maxlength="3" autocomplete="off">
+        <p class="hint">1–3 characters. Used by Monogram and Circular badge.</p>
+      </div>
+
+      <div class="field">
+        <label for="logoText">Main logo text</label>
+        <input type="text" id="logoText" data-key="logoText" maxlength="40" autocomplete="off">
+        <p class="hint">Used by the Wordmark style.</p>
+      </div>
+    </section>
+
+    <!-- ---- Style ---- -->
+    <section class="group">
+      <h2 class="group__title">2. Logo style</h2>
+      <fieldset class="styles">
+        <legend class="sr-only">Choose a logo style</legend>
+        <label class="style-opt"><input type="radio" name="style" data-key="style" value="monogram"><span>Monogram</span></label>
+        <label class="style-opt"><input type="radio" name="style" data-key="style" value="badge"><span>Circular badge</span></label>
+        <label class="style-opt"><input type="radio" name="style" data-key="style" value="symbol"><span>Geometric symbol</span></label>
+        <label class="style-opt"><input type="radio" name="style" data-key="style" value="wordmark"><span>Wordmark</span></label>
+        <label class="style-opt"><input type="radio" name="style" data-key="style" value="avatar"><span>Geometric avatar</span></label>
+      </fieldset>
+      <p class="hint">Controls that do not affect the selected style are dimmed and marked <em>not used</em>.</p>
+    </section>
+
+    <!-- ---- Colour ---- -->
+    <section class="group">
+      <h2 class="group__title">3. Colour</h2>
+
+      <div class="field">
+        <span class="label-like">Palette presets</span>
+        <div id="palette-list" class="palettes"></div>
+        <p class="hint">Presets fill the four colours below. You can then change any colour individually.</p>
+      </div>
+
+      <div class="color-grid">
+        <div class="field field--color">
+          <label for="primaryColor">Primary</label>
+          <input type="color" id="primaryColor" data-key="primaryColor">
+        </div>
+        <div class="field field--color">
+          <label for="secondaryColor">Secondary</label>
+          <input type="color" id="secondaryColor" data-key="secondaryColor">
+        </div>
+        <div class="field field--color">
+          <label for="accentColor">Accent</label>
+          <input type="color" id="accentColor" data-key="accentColor">
+        </div>
+        <div class="field field--color">
+          <label for="backgroundColor">Background / knockout</label>
+          <input type="color" id="backgroundColor" data-key="backgroundColor">
+        </div>
+      </div>
+
+      <div class="field field--check">
+        <label for="transparentBackground">
+          <input type="checkbox" id="transparentBackground" data-key="transparentBackground">
+          Transparent background
+        </label>
+        <p class="hint">On by default, so the light and dark previews show how the mark itself
+           reads rather than just showing your background colour. The
+           <em>Background / knockout</em> colour is still used for letters, eyes and other
+           shapes that sit on top of the mark and punch through it.</p>
+      </div>
+
+      <div class="field field--check">
+        <label for="monochrome">
+          <input type="checkbox" id="monochrome" data-key="monochrome">
+          Monochrome (single colour)
+        </label>
+        <p class="hint">Applies to every preview <strong>and</strong> the export. A logo that works in one colour is a stronger logo.</p>
+      </div>
+    </section>
+
+    <!-- ---- Type ---- -->
+    <section class="group" data-affects="fontFamily fontSize letterSpacing">
+      <h2 class="group__title">4. Type</h2>
+
+      <div class="field" data-control="fontFamily">
+        <label for="fontFamily">Font family <span class="na-tag">not used</span></label>
+        <select id="fontFamily" data-key="fontFamily"></select>
+        <p class="hint">Dependable cross-platform font stacks only.</p>
+      </div>
+
+      <div class="field" data-control="fontSize">
+        <label for="fontSize">Font size <span class="na-tag">not used</span> <output data-readout="fontSize"></output></label>
+        <input type="range" id="fontSize" data-key="fontSize" min="20" max="300" step="1">
+        <button type="button" id="btn-fit-text" class="btn btn--small">Fit text to canvas</button>
+      </div>
+
+      <div class="field" data-control="letterSpacing">
+        <label for="letterSpacing">Letter spacing <span class="na-tag">not used</span> <output data-readout="letterSpacing"></output></label>
+        <input type="range" id="letterSpacing" data-key="letterSpacing" min="-20" max="60" step="1">
+      </div>
+
+      <div id="overflow-warning" class="banner banner--warn banner--inline" role="status" hidden></div>
+    </section>
+
+    <!-- ---- Shape ---- -->
+    <section class="group">
+      <h2 class="group__title">5. Shape</h2>
+
+      <div class="field" data-control="iconSize">
+        <label for="iconSize">Icon size <span class="na-tag">not used</span> <output data-readout="iconSize"></output></label>
+        <input type="range" id="iconSize" data-key="iconSize" min="30" max="98" step="1">
+      </div>
+
+      <div class="field" data-control="borderThickness">
+        <label for="borderThickness">Border thickness <span class="na-tag">not used</span> <output data-readout="borderThickness"></output></label>
+        <input type="range" id="borderThickness" data-key="borderThickness" min="0" max="48" step="1">
+      </div>
+
+      <div class="field" data-control="cornerRadius">
+        <label for="cornerRadius">Corner roundness <span class="na-tag">not used</span> <output data-readout="cornerRadius"></output></label>
+        <input type="range" id="cornerRadius" data-key="cornerRadius" min="0" max="140" step="1">
+      </div>
+    </section>
+
+    <!-- ---- Badge specific ---- -->
+    <section class="group" data-style-group="badge">
+      <h2 class="group__title">6. Circular badge options</h2>
+      <div class="field" data-control="badgeRingGap">
+        <label for="badgeRingGap">Inner ring gap <output data-readout="badgeRingGap"></output></label>
+        <input type="range" id="badgeRingGap" data-key="badgeRingGap" min="6" max="70" step="1">
+      </div>
+      <div class="field field--check" data-control="badgeInnerRing">
+        <label for="badgeInnerRing">
+          <input type="checkbox" id="badgeInnerRing" data-key="badgeInnerRing">
+          Show inner ring
+        </label>
+      </div>
+    </section>
+
+    <!-- ---- Symbol specific ---- -->
+    <section class="group" data-style-group="symbol">
+      <h2 class="group__title">6. Geometric symbol options</h2>
+      <div class="field" data-control="symbolSides">
+        <label for="symbolSides">Number of sides <output data-readout="symbolSides"></output></label>
+        <input type="range" id="symbolSides" data-key="symbolSides" min="3" max="12" step="1">
+      </div>
+      <div class="field" data-control="symbolRotation">
+        <label for="symbolRotation">Rotation <output data-readout="symbolRotation"></output></label>
+        <input type="range" id="symbolRotation" data-key="symbolRotation" min="0" max="180" step="1">
+      </div>
+      <div class="field" data-control="symbolInnerScale">
+        <label for="symbolInnerScale">Inner shape size <output data-readout="symbolInnerScale"></output></label>
+        <input type="range" id="symbolInnerScale" data-key="symbolInnerScale" min="0" max="90" step="1">
+      </div>
+    </section>
+
+    <!-- ---- Avatar specific ---- -->
+    <section class="group" data-style-group="avatar">
+      <h2 class="group__title">6. Geometric avatar options</h2>
+      <div class="field" data-control="avatarHeadWidth">
+        <label for="avatarHeadWidth">Head width <output data-readout="avatarHeadWidth"></output></label>
+        <input type="range" id="avatarHeadWidth" data-key="avatarHeadWidth" min="50" max="130" step="1">
+      </div>
+      <div class="field" data-control="avatarHeadHeight">
+        <label for="avatarHeadHeight">Head height <output data-readout="avatarHeadHeight"></output></label>
+        <input type="range" id="avatarHeadHeight" data-key="avatarHeadHeight" min="50" max="130" step="1">
+      </div>
+      <div class="field" data-control="avatarEyeSize">
+        <label for="avatarEyeSize">Eye size <output data-readout="avatarEyeSize"></output></label>
+        <input type="range" id="avatarEyeSize" data-key="avatarEyeSize" min="2" max="30" step="1">
+      </div>
+      <div class="field" data-control="avatarEyeSpacing">
+        <label for="avatarEyeSpacing">Eye spacing <output data-readout="avatarEyeSpacing"></output></label>
+        <input type="range" id="avatarEyeSpacing" data-key="avatarEyeSpacing" min="10" max="80" step="1">
+      </div>
+      <div class="field" data-control="avatarEars">
+        <label for="avatarEars">Ears or antennae</label>
+        <select id="avatarEars" data-key="avatarEars">
+          <option value="none">None</option>
+          <option value="ears">Ears</option>
+          <option value="antenna">Antennae</option>
+        </select>
+      </div>
+      <div class="field" data-control="avatarMouth">
+        <label for="avatarMouth">Mouth</label>
+        <select id="avatarMouth" data-key="avatarMouth">
+          <option value="none">None</option>
+          <option value="line">Line</option>
+          <option value="smile">Smile</option>
+          <option value="dot">Dot</option>
+        </select>
+      </div>
+    </section>
+
+  </aside>
+
+  <!-- ================= PREVIEW STAGE ================= -->
+  <section class="stage" aria-label="Logo previews">
+
+    <div class="stage__note">
+      <p>
+        <strong>All five previews below show the exact same SVG artwork</strong> — the identical
+        string of SVG code that the <em>Download SVG</em> button saves. They differ only in
+        background colour, display size and opacity.
+      </p>
+      <p class="stage__meta" id="svg-meta"></p>
+    </div>
+
+    <div class="previews">
+
+      <figure class="preview">
+        <figcaption>Light background</figcaption>
+        <div class="frame frame--light" data-preview="light"></div>
+      </figure>
+
+      <figure class="preview">
+        <figcaption>Dark background</figcaption>
+        <div class="frame frame--dark" data-preview="dark"></div>
+      </figure>
+
+      <figure class="preview">
+        <figcaption>Profile picture <span class="dim">(small, circular crop)</span></figcaption>
+        <div class="frame frame--profile" data-preview="profile"></div>
+      </figure>
+
+      <figure class="preview">
+        <figcaption>Website header <span class="dim">(wide strip)</span></figcaption>
+        <div class="frame frame--header" data-preview="header"></div>
+      </figure>
+
+      <figure class="preview">
+        <figcaption>Watermark <span class="dim">(same artwork, reduced opacity)</span></figcaption>
+        <div class="frame frame--watermark" data-preview="watermark"></div>
+      </figure>
+
+    </div>
+
+    <!-- ---- Export notes ---- -->
+    <div class="banner banner--info">
+      <strong>Export note:</strong> SVG text uses fallback fonts. For consistent print results,
+      open the SVG in a design program and convert text to outlines before sending it to a printer.
+    </div>
+
+    <details class="raw-svg">
+      <summary>Copy SVG code (use this if the download button does not work)</summary>
+      <p class="hint">Select all of the text below, copy it, paste it into a plain text editor and save the file with a <code>.svg</code> ending.</p>
+      <textarea id="raw-svg-text" readonly rows="10" spellcheck="false" aria-label="Raw SVG code"></textarea>
+    </details>
+
+    <p class="status" id="status-line" role="status" aria-live="polite"></p>
+
+  </section>
+</main>
+
+<!-- ================= GALLERY ================= -->
+<section class="gallery-section" aria-label="Saved concepts gallery">
+  <div class="gallery-head">
+    <h2>Concept gallery</h2>
+    <div class="gallery-actions">
+      <button type="button" id="btn-export-json" class="btn btn--small">Export gallery as JSON</button>
+      <button type="button" id="btn-import-json" class="btn btn--small">Import gallery from JSON</button>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
+      <button type="button" id="btn-clear-gallery" class="btn btn--small btn--danger">Clear gallery</button>
+    </div>
+  </div>
+
+  <div class="banner banner--info">
+    Gallery data is stored only in this browser on this computer. Export a JSON backup if you
+    want to move or protect your concepts.
+  </div>
+
+  <div class="banner banner--info">
+    <strong>How loading works:</strong> loading a concept rebuilds the logo from its saved settings,
+    not from the saved picture. If a drawing style is improved later, an older concept may look
+    slightly different when you load it. The thumbnail always shows the artwork exactly as it was
+    when you saved it.
+  </div>
+
+  <!-- Import merge / replace chooser -->
+  <div id="import-panel" class="prompt-panel" hidden>
+    <p id="import-summary"></p>
+    <div class="prompt-panel__actions">
+      <button type="button" id="btn-import-merge" class="btn btn--small btn--primary">Merge with existing</button>
+      <button type="button" id="btn-import-replace" class="btn btn--small btn--danger">Replace everything</button>
+      <button type="button" id="btn-import-cancel" class="btn btn--small btn--quiet">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Typed confirmation for clearing -->
+  <div id="clear-panel" class="prompt-panel" hidden>
+    <p>This permanently deletes every saved concept in this browser. Type <strong>DELETE</strong> to confirm.</p>
+    <div class="prompt-panel__actions">
+      <label class="sr-only" for="clear-confirm-input">Type DELETE to confirm</label>
+      <input type="text" id="clear-confirm-input" placeholder="DELETE" autocomplete="off">
+      <button type="button" id="btn-clear-confirm" class="btn btn--small btn--danger" disabled>Delete everything</button>
+      <button type="button" id="btn-clear-cancel" class="btn btn--small btn--quiet">Cancel</button>
+    </div>
+  </div>
+
+  <p class="status" id="gallery-status" role="status" aria-live="polite"></p>
+
+  <div id="gallery-empty" class="empty-state">
+    <p><strong>No concepts saved yet.</strong></p>
+    <p>Adjust the controls until you like something, then press <em>Save to gallery</em> at the top of the page.
+       Save several rough ideas rather than trying to perfect one.</p>
+  </div>
+
+  <ul id="gallery-list" class="gallery-list"></ul>
+</section>
+
+<footer class="app-footer">
+  <p>Logo Lab — a local tool. No accounts, no uploads, no network requests. Everything stays on this computer.</p>
+</footer>
+
+<!-- Off-screen SVG used only to measure text width for the Fit text button -->
+<svg id="measure-svg" width="0" height="0" aria-hidden="true" focusable="false"
+     xmlns="http://www.w3.org/2000/svg"><text id="measure-text"></text></svg>
+
+<script src="script.js"></script>
+</body>
+</html>

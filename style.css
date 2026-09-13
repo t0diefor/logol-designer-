@@ -1,0 +1,521 @@
+/* ==========================================================================
+   Logo Lab — application styling ONLY.
+
+   IMPORTANT RULE FOR THIS FILE:
+   This stylesheet must never change how the logo LOOKS. It may set the
+   display size of a preview frame and the <svg> element inside it, but it
+   must never set fill, stroke, colour, font or any other visual property of
+   the artwork. All artwork appearance comes from the generated SVG string in
+   script.js. That is what keeps every preview identical to the exported file.
+   ========================================================================== */
+
+/* ---------- 1. Design tokens ---------- */
+:root {
+  --bg:            #f4f5f7;
+  --surface:       #ffffff;
+  --surface-alt:   #fafbfc;
+  --border:        #dfe3e8;
+  --border-strong: #c3cad3;
+  --text:          #1f2430;
+  --text-soft:     #5c6675;
+  --text-dim:      #8b95a3;
+  --brand:         #2f5bea;
+  --brand-dark:    #1e42b8;
+  --danger:        #c0392b;
+  --warn-bg:       #fff6e0;
+  --warn-border:   #e8c168;
+  --info-bg:       #eef3ff;
+  --info-border:   #c2d1f5;
+  --radius:        10px;
+  --radius-sm:     6px;
+  --shadow:        0 1px 2px rgba(20, 30, 50, .06), 0 4px 14px rgba(20, 30, 50, .05);
+  --font-ui:       system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:     ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* ---------- 2. Base ---------- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { margin: 0; line-height: 1.25; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: .9em;
+  background: rgba(20, 30, 50, .06);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+.dim { color: var(--text-dim); font-weight: 400; }
+
+/* ---------- 3. Header ---------- */
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header__title h1 { font-size: 21px; letter-spacing: -.01em; }
+
+.app-header__title p {
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 13.5px;
+}
+
+.app-header__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- 4. Buttons ---------- */
+.btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+.btn:hover  { background: var(--surface-alt); border-color: var(--text-dim); }
+.btn:active { background: #eef0f3; }
+.btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.btn--primary {
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.btn--primary:hover  { background: var(--brand-dark); border-color: var(--brand-dark); }
+.btn--primary:active { background: var(--brand-dark); }
+
+.btn--danger { color: var(--danger); border-color: #e3b4ae; }
+.btn--danger:hover { background: #fdf1ef; border-color: var(--danger); }
+
+.btn--quiet { color: var(--text-soft); border-color: var(--border); }
+
+.btn--small { padding: 6px 10px; font-size: 13px; }
+
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---------- 5. Layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 20px 24px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .app-header { padding: 14px 16px; }
+  .layout, .gallery-section { padding-left: 16px; padding-right: 16px; }
+}
+
+/* ---------- 6. Control panel ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 4px 18px 18px;
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .panel { position: static; max-height: none; }
+}
+
+.group { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.group:last-child { border-bottom: 0; }
+
+.group__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+.field > label,
+.label-like {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.hint {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+input[type="text"],
+select,
+textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+}
+
+input[type="text"]:focus,
+select:focus,
+textarea:focus,
+input[type="range"]:focus-visible,
+input[type="color"]:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+input[type="range"] { width: 100%; margin: 2px 0 0; accent-color: var(--brand); }
+
+output[data-readout] {
+  float: right;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-soft);
+}
+
+/* Style chooser */
+.styles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.style-opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  padding: 8px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--surface-alt);
+}
+.style-opt:hover { border-color: var(--border-strong); }
+.style-opt:has(input:checked),
+.style-opt.is-selected {
+  border-color: var(--brand);
+  background: var(--info-bg);
+  font-weight: 600;
+}
+.style-opt input { accent-color: var(--brand); margin: 0; }
+
+/* Colour controls */
+.color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.field--color { margin-bottom: 0; }
+
+input[type="color"] {
+  width: 100%;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.field--check > label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.field--check input { margin-top: 2px; accent-color: var(--brand); }
+
+/* Palette presets */
+.palettes { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.palette-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 5px 6px;
+  font: inherit;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  cursor: pointer;
+}
+.palette-btn:hover { border-color: var(--brand); background: var(--info-bg); }
+.palette-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.swatches { display: flex; }
+
+.swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, .15);
+  margin-right: -4px;
+}
+
+/* "not used by this style" state */
+.na-tag {
+  display: none;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-dim);
+  background: rgba(20, 30, 50, .07);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  vertical-align: 1px;
+}
+
+.field.is-na { opacity: .45; }
+.field.is-na .na-tag { display: inline-block; }
+.field.is-na input,
+.field.is-na select,
+.field.is-na button { pointer-events: none; }
+
+/* ---------- 7. Preview stage ---------- */
+.stage { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.stage__note {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.stage__note p { margin: 0; font-size: 13.5px; color: var(--text-soft); }
+
+.stage__meta {
+  margin-top: 6px !important;
+  font-family: var(--font-mono);
+  font-size: 12px !important;
+  color: var(--text-dim) !important;
+}
+
+.previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+.preview { margin: 0; }
+
+.preview figcaption {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+}
+
+/* Preview frames.
+   These rules set BACKGROUND, SIZE and OPACITY of the container only.
+   The artwork inside is the untouched generated SVG. */
+.frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+/* Size the SVG element to fit its frame. This is layout, not appearance —
+   no fill, stroke, colour or font is set here. */
+.frame svg { display: block; width: 100%; height: auto; max-height: 100%; }
+
+.frame--light     { background: #ffffff; min-height: 210px; }
+.frame--dark      { background: #14171f; min-height: 210px; }
+
+.frame--profile   { background: #ffffff; width: 116px; height: 116px; border-radius: 50%; padding: 8px; }
+
+.frame--header    { background: #ffffff; height: 78px; padding: 10px 16px; justify-content: flex-start; }
+.frame--header svg { width: auto; height: 100%; max-width: 100%; }
+
+.frame--watermark { background: #ffffff; min-height: 150px; }
+.frame--watermark svg { opacity: .22; }
+
+/* ---------- 8. Banners, status, empty states ---------- */
+.banner {
+  border: 1px solid var(--info-border);
+  background: var(--info-bg);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.banner--warn { background: var(--warn-bg); border-color: var(--warn-border); }
+
+.banner--inline { margin-top: 10px; font-size: 12.5px; padding: 9px 11px; }
+
+.banner--info code { background: rgba(20, 30, 50, .08); }
+
+.status { margin: 0; font-size: 13px; color: var(--text-soft); min-height: 20px; }
+.status.is-error { color: var(--danger); font-weight: 500; }
+.status.is-ok { color: #1d7a4c; font-weight: 500; }
+
+.empty-state {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 26px 20px;
+  text-align: center;
+  color: var(--text-soft);
+  background: var(--surface-alt);
+}
+.empty-state p { margin: 0 0 6px; font-size: 13.5px; }
+.empty-state p:last-child { margin-bottom: 0; }
+
+/* ---------- 9. Raw SVG fallback ---------- */
+.raw-svg {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+}
+.raw-svg summary { cursor: pointer; font-size: 13.5px; font-weight: 600; }
+.raw-svg textarea {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.45;
+  white-space: pre;
+  resize: vertical;
+}
+
+/* ---------- 10. Gallery ---------- */
+.gallery-section {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 8px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gallery-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+}
+.gallery-head h2 { font-size: 18px; }
+.gallery-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.gallery-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 14px;
+}
+
+.concept {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.concept__thumb {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  height: 132px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+.concept__thumb svg { display: block; width: 100%; height: auto; max-height: 100%; }
+
+.concept__body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
+.concept__name {
+  font-size: 13.5px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.concept__meta { font-size: 11.5px; color: var(--text-dim); }
+
+.concept__actions { display: flex; gap: 6px; margin-top: auto; padding-top: 8px; }
+.concept__actions .btn { flex: 1; }
+
+/* ---------- 11. Confirmation / import panels ---------- */
+.prompt-panel {
+  border: 1px solid var(--warn-border);
+  background: var(--warn-bg);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+}
+.prompt-panel p { margin: 0 0 10px; font-size: 13.5px; }
+
+.prompt-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.prompt-panel__actions input[type="text"] { width: 140px; }
+
+/* ---------- 12. Footer ---------- */
+.app-footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px 28px;
+  text-align: center;
+}
+.app-footer p { margin: 0; font-size: 12.5px; color: var(--text-dim); }
+
+/* Measuring SVG must stay rendered (not display:none) to be measurable. */
+#measure-svg { position: absolute; left: -9999px; top: 0; visibility: hidden; }
