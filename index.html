@@ -14,19 +14,43 @@
     <h1>Logo Lab</h1>
     <p>Explore logo concepts. Nothing here is final — save as many ideas as you like.</p>
   </div>
+
   <div class="app-header__actions">
-    <button type="button" id="btn-export-svg" class="btn btn--primary">Download SVG</button>
-    <button type="button" id="btn-save-concept" class="btn">Save to gallery</button>
-    <button type="button" id="btn-reset" class="btn btn--quiet">Reset to defaults</button>
+    <div class="btn-group" role="group" aria-label="History">
+      <button type="button" id="btn-undo" class="btn btn--icon" title="Undo (Ctrl+Z)">↶ Undo</button>
+      <button type="button" id="btn-redo" class="btn btn--icon" title="Redo (Ctrl+Shift+Z)">↷ Redo</button>
+    </div>
+
+    <button type="button" id="btn-randomize" class="btn">🎲 Randomize</button>
+    <button type="button" id="btn-save-concept" class="btn">Save</button>
+
+    <div class="btn-group" role="group" aria-label="Export">
+      <button type="button" id="btn-export-svg" class="btn btn--primary">Download SVG</button>
+      <label class="sr-only" for="pngScale">PNG resolution</label>
+      <select id="pngScale" class="btn btn--select" title="PNG resolution">
+        <option value="1">1×</option>
+        <option value="2" selected>2×</option>
+        <option value="4">4×</option>
+      </select>
+      <button type="button" id="btn-export-png" class="btn">PNG</button>
+      <button type="button" id="btn-export-kit" class="btn">Brand kit (.zip)</button>
+    </div>
+
+    <label class="sr-only" for="themeMode">App appearance</label>
+    <select id="themeMode" class="btn btn--select" title="App appearance">
+      <option value="system">Auto</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+
+    <button type="button" id="btn-reset" class="btn btn--quiet">Reset</button>
   </div>
 </header>
 
-<!-- Warning shown only if localStorage is unavailable -->
 <div id="storage-warning" class="banner banner--warn" role="status" hidden>
   <strong>Gallery cannot be saved in this browser.</strong>
   Saving is disabled by your browser settings or by the <code>file://</code> security policy.
-  Concepts you save will be kept for this session only and lost when you close the tab.
-  Use <em>Export gallery as JSON</em> to keep them.
+  Concepts you save will be kept for this session only. Use <em>Export gallery as JSON</em> to keep them.
 </div>
 
 <main class="layout">
@@ -34,14 +58,14 @@
   <!-- ================= CONTROL PANEL ================= -->
   <aside class="panel" aria-label="Logo controls">
 
-    <!-- ---- Identity ---- -->
+    <!-- ---- 1. Identity ---- -->
     <section class="group">
       <h2 class="group__title">1. Your details</h2>
 
       <div class="field">
         <label for="creatorName">Creator name</label>
         <input type="text" id="creatorName" data-key="creatorName" maxlength="60" autocomplete="off">
-        <p class="hint">Used for the downloaded file name.</p>
+        <p class="hint">Used for the downloaded file names.</p>
       </div>
 
       <div class="field">
@@ -53,11 +77,11 @@
       <div class="field">
         <label for="logoText">Main logo text</label>
         <input type="text" id="logoText" data-key="logoText" maxlength="40" autocomplete="off">
-        <p class="hint">Used by the Wordmark style.</p>
+        <p class="hint">Used by Wordmark and Lockup.</p>
       </div>
     </section>
 
-    <!-- ---- Style ---- -->
+    <!-- ---- 2. Style ---- -->
     <section class="group">
       <h2 class="group__title">2. Logo style</h2>
       <fieldset class="styles">
@@ -65,20 +89,21 @@
         <label class="style-opt"><input type="radio" name="style" data-key="style" value="monogram"><span>Monogram</span></label>
         <label class="style-opt"><input type="radio" name="style" data-key="style" value="badge"><span>Circular badge</span></label>
         <label class="style-opt"><input type="radio" name="style" data-key="style" value="symbol"><span>Geometric symbol</span></label>
-        <label class="style-opt"><input type="radio" name="style" data-key="style" value="wordmark"><span>Wordmark</span></label>
+        <label class="style-opt"><input type="radio" name="style" data-key="style" value="orbit"><span>Orbit symbol</span></label>
         <label class="style-opt"><input type="radio" name="style" data-key="style" value="avatar"><span>Geometric avatar</span></label>
+        <label class="style-opt"><input type="radio" name="style" data-key="style" value="wordmark"><span>Wordmark</span></label>
+        <label class="style-opt style-opt--wide"><input type="radio" name="style" data-key="style" value="lockup"><span>Lockup (mark + name)</span></label>
       </fieldset>
       <p class="hint">Controls that do not affect the selected style are dimmed and marked <em>not used</em>.</p>
     </section>
 
-    <!-- ---- Colour ---- -->
+    <!-- ---- 3. Colour ---- -->
     <section class="group">
       <h2 class="group__title">3. Colour</h2>
 
       <div class="field">
         <span class="label-like">Palette presets</span>
         <div id="palette-list" class="palettes"></div>
-        <p class="hint">Presets fill the four colours below. You can then change any colour individually.</p>
       </div>
 
       <div class="color-grid">
@@ -106,9 +131,17 @@
           Transparent background
         </label>
         <p class="hint">On by default, so the light and dark previews show how the mark itself
-           reads rather than just showing your background colour. The
-           <em>Background / knockout</em> colour is still used for letters, eyes and other
-           shapes that sit on top of the mark and punch through it.</p>
+           reads rather than just showing your background colour.</p>
+      </div>
+
+      <div class="field field--check" data-control="autoContrast">
+        <label for="autoContrast">
+          <input type="checkbox" id="autoContrast" data-key="autoContrast">
+          Adaptive contrast
+        </label>
+        <p class="hint">Picks the knockout colour for letters and eyes by measuring contrast
+           against the primary fill, instead of always using the background colour.
+           Off by default so older saved concepts reload unchanged.</p>
       </div>
 
       <div class="field field--check">
@@ -116,12 +149,36 @@
           <input type="checkbox" id="monochrome" data-key="monochrome">
           Monochrome (single colour)
         </label>
-        <p class="hint">Applies to every preview <strong>and</strong> the export. A logo that works in one colour is a stronger logo.</p>
+        <p class="hint">Applies to every preview <strong>and</strong> the export.</p>
+      </div>
+
+      <!-- Colour harmoniser -->
+      <div class="subgroup">
+        <span class="label-like">Colour harmonizer</span>
+        <div class="row">
+          <div class="field field--color field--tight">
+            <label for="harmonyBase">Base</label>
+            <input type="color" id="harmonyBase">
+          </div>
+          <div class="field field--grow">
+            <label for="harmonyScheme">Scheme</label>
+            <select id="harmonyScheme"></select>
+          </div>
+        </div>
+        <div class="field field--check">
+          <label for="harmonyDark">
+            <input type="checkbox" id="harmonyDark">
+            Dark ground
+          </label>
+        </div>
+        <button type="button" id="btn-harmonize" class="btn btn--small">Generate palette</button>
+        <p class="hint">Derives all four colours from one base hue and turns on adaptive contrast.
+           The reported contrast ratio tells you whether the result is legible.</p>
       </div>
     </section>
 
-    <!-- ---- Type ---- -->
-    <section class="group" data-affects="fontFamily fontSize letterSpacing">
+    <!-- ---- 4. Type ---- -->
+    <section class="group">
       <h2 class="group__title">4. Type</h2>
 
       <div class="field" data-control="fontFamily">
@@ -144,7 +201,7 @@
       <div id="overflow-warning" class="banner banner--warn banner--inline" role="status" hidden></div>
     </section>
 
-    <!-- ---- Shape ---- -->
+    <!-- ---- 5. Shape ---- -->
     <section class="group">
       <h2 class="group__title">5. Shape</h2>
 
@@ -164,24 +221,61 @@
       </div>
     </section>
 
-    <!-- ---- Badge specific ---- -->
+    <!-- ---- 6. Finish: outlines and gradients ---- -->
+    <section class="group">
+      <h2 class="group__title">6. Finish</h2>
+
+      <div class="field" data-control="renderMode">
+        <label for="renderMode">Render mode</label>
+        <select id="renderMode" data-key="renderMode">
+          <option value="solid">Solid fills</option>
+          <option value="outline">Outlines (stroke only)</option>
+        </select>
+        <p class="hint">Outlines draws every body shape as a stroked silhouette.
+           This is <strong>not</strong> text-to-outlines conversion — see the export note.</p>
+      </div>
+
+      <div class="field field--check" data-control="gradientEnabled">
+        <label for="gradientEnabled">
+          <input type="checkbox" id="gradientEnabled" data-key="gradientEnabled">
+          Banded gradient
+        </label>
+        <p class="hint">SVG gradients need reusable IDs, which would make gallery thumbnails
+           render with each other's colours. This builds the blend from flat bands instead,
+           so it stays ID-free. <strong>Text cannot be banded</strong> and stays flat.</p>
+      </div>
+
+      <div class="field field--color" data-control="gradientTo">
+        <label for="gradientTo">Gradient end colour</label>
+        <input type="color" id="gradientTo" data-key="gradientTo">
+      </div>
+
+      <div class="field" data-control="gradientBands">
+        <label for="gradientBands">Gradient smoothness <output data-readout="gradientBands"></output></label>
+        <input type="range" id="gradientBands" data-key="gradientBands" min="4" max="48" step="1">
+        <p class="hint">More bands look smoother and make the file larger.</p>
+      </div>
+
+      <p id="gradient-note" class="banner banner--warn banner--inline" role="status" hidden></p>
+    </section>
+
+    <!-- ---- Badge ---- -->
     <section class="group" data-style-group="badge">
-      <h2 class="group__title">6. Circular badge options</h2>
+      <h2 class="group__title">7. Circular badge options</h2>
       <div class="field" data-control="badgeRingGap">
         <label for="badgeRingGap">Inner ring gap <output data-readout="badgeRingGap"></output></label>
         <input type="range" id="badgeRingGap" data-key="badgeRingGap" min="6" max="70" step="1">
       </div>
       <div class="field field--check" data-control="badgeInnerRing">
         <label for="badgeInnerRing">
-          <input type="checkbox" id="badgeInnerRing" data-key="badgeInnerRing">
-          Show inner ring
+          <input type="checkbox" id="badgeInnerRing" data-key="badgeInnerRing"> Show inner ring
         </label>
       </div>
     </section>
 
-    <!-- ---- Symbol specific ---- -->
+    <!-- ---- Symbol ---- -->
     <section class="group" data-style-group="symbol">
-      <h2 class="group__title">6. Geometric symbol options</h2>
+      <h2 class="group__title">7. Geometric symbol options</h2>
       <div class="field" data-control="symbolSides">
         <label for="symbolSides">Number of sides <output data-readout="symbolSides"></output></label>
         <input type="range" id="symbolSides" data-key="symbolSides" min="3" max="12" step="1">
@@ -191,14 +285,42 @@
         <input type="range" id="symbolRotation" data-key="symbolRotation" min="0" max="180" step="1">
       </div>
       <div class="field" data-control="symbolInnerScale">
-        <label for="symbolInnerScale">Inner shape size <output data-readout="symbolInnerScale"></output></label>
+        <label for="symbolInnerScale">Inner cut-out size <output data-readout="symbolInnerScale"></output></label>
         <input type="range" id="symbolInnerScale" data-key="symbolInnerScale" min="0" max="90" step="1">
       </div>
     </section>
 
-    <!-- ---- Avatar specific ---- -->
+    <!-- ---- Orbit ---- -->
+    <section class="group" data-style-group="orbit">
+      <h2 class="group__title">7. Orbit symbol options</h2>
+      <p class="hint">A generated network mark. The seed is saved with the concept, so the same
+         seed always rebuilds the same arrangement.</p>
+      <div class="field" data-control="orbitNodes">
+        <label for="orbitNodes">Nodes <output data-readout="orbitNodes"></output></label>
+        <input type="range" id="orbitNodes" data-key="orbitNodes" min="3" max="12" step="1">
+      </div>
+      <div class="field" data-control="orbitSeed">
+        <label for="orbitSeed">Seed <output data-readout="orbitSeed"></output></label>
+        <input type="range" id="orbitSeed" data-key="orbitSeed" min="0" max="999" step="1">
+      </div>
+      <div class="field" data-control="orbitSpread">
+        <label for="orbitSpread">Spread <output data-readout="orbitSpread"></output></label>
+        <input type="range" id="orbitSpread" data-key="orbitSpread" min="20" max="95" step="1">
+      </div>
+      <div class="field" data-control="orbitDotScale">
+        <label for="orbitDotScale">Node size <output data-readout="orbitDotScale"></output></label>
+        <input type="range" id="orbitDotScale" data-key="orbitDotScale" min="6" max="60" step="1">
+      </div>
+      <div class="field field--check" data-control="orbitSpokes">
+        <label for="orbitSpokes">
+          <input type="checkbox" id="orbitSpokes" data-key="orbitSpokes"> Show connecting spokes
+        </label>
+      </div>
+    </section>
+
+    <!-- ---- Avatar ---- -->
     <section class="group" data-style-group="avatar">
-      <h2 class="group__title">6. Geometric avatar options</h2>
+      <h2 class="group__title">7. Geometric avatar options</h2>
       <div class="field" data-control="avatarHeadWidth">
         <label for="avatarHeadWidth">Head width <output data-readout="avatarHeadWidth"></output></label>
         <input type="range" id="avatarHeadWidth" data-key="avatarHeadWidth" min="50" max="130" step="1">
@@ -234,6 +356,59 @@
       </div>
     </section>
 
+    <!-- ---- Lockup ---- -->
+    <section class="group" data-style-group="lockup">
+      <h2 class="group__title">7. Lockup options</h2>
+      <p class="hint">A lockup places any square mark next to your name. The mark is drawn by the
+         same renderer as the standalone style — no geometry is duplicated.</p>
+
+      <div class="field" data-control="lockupMark">
+        <label for="lockupMark">Mark</label>
+        <select id="lockupMark" data-key="lockupMark">
+          <option value="monogram">Monogram</option>
+          <option value="badge">Circular badge</option>
+          <option value="symbol">Geometric symbol</option>
+          <option value="orbit">Orbit symbol</option>
+          <option value="avatar">Geometric avatar</option>
+        </select>
+      </div>
+
+      <div class="field" data-control="lockupArrangement">
+        <label for="lockupArrangement">Arrangement</label>
+        <select id="lockupArrangement" data-key="lockupArrangement">
+          <option value="horizontal">Mark beside text</option>
+          <option value="stacked">Mark above text</option>
+        </select>
+      </div>
+
+      <div class="field" data-control="lockupGap">
+        <label for="lockupGap">Gap <output data-readout="lockupGap"></output></label>
+        <input type="range" id="lockupGap" data-key="lockupGap" min="0" max="200" step="1">
+      </div>
+
+      <div class="field" data-control="taglineText">
+        <label for="taglineText">Tagline</label>
+        <input type="text" id="taglineText" data-key="taglineText" maxlength="60" autocomplete="off">
+        <p class="hint">Leave empty to hide it.</p>
+      </div>
+
+      <div class="field" data-control="secondaryFontFamily">
+        <label for="secondaryFontFamily">Tagline font</label>
+        <select id="secondaryFontFamily" data-key="secondaryFontFamily"></select>
+        <p class="hint">A second, independent font stack for the tagline line.</p>
+      </div>
+
+      <div class="field" data-control="taglineFontSize">
+        <label for="taglineFontSize">Tagline size <output data-readout="taglineFontSize"></output></label>
+        <input type="range" id="taglineFontSize" data-key="taglineFontSize" min="10" max="120" step="1">
+      </div>
+
+      <div class="field" data-control="taglineLetterSpacing">
+        <label for="taglineLetterSpacing">Tagline spacing <output data-readout="taglineLetterSpacing"></output></label>
+        <input type="range" id="taglineLetterSpacing" data-key="taglineLetterSpacing" min="-10" max="40" step="1">
+      </div>
+    </section>
+
   </aside>
 
   <!-- ================= PREVIEW STAGE ================= -->
@@ -249,56 +424,61 @@
     </div>
 
     <div class="previews">
-
       <figure class="preview">
         <figcaption>Light background</figcaption>
         <div class="frame frame--light" data-preview="light"></div>
       </figure>
-
       <figure class="preview">
         <figcaption>Dark background</figcaption>
         <div class="frame frame--dark" data-preview="dark"></div>
       </figure>
-
       <figure class="preview">
         <figcaption>Profile picture <span class="dim">(small, circular crop)</span></figcaption>
         <div class="frame frame--profile" data-preview="profile"></div>
       </figure>
-
       <figure class="preview">
         <figcaption>Website header <span class="dim">(wide strip)</span></figcaption>
         <div class="frame frame--header" data-preview="header"></div>
       </figure>
-
       <figure class="preview">
         <figcaption>Watermark <span class="dim">(same artwork, reduced opacity)</span></figcaption>
         <div class="frame frame--watermark" data-preview="watermark"></div>
       </figure>
-
     </div>
 
-    <!-- ---- Export notes ---- -->
     <div class="banner banner--info">
       <strong>Export note:</strong> SVG text uses fallback fonts. For consistent print results,
       open the SVG in a design program and convert text to outlines before sending it to a printer.
+      Logo Lab cannot do this itself — no browser exposes glyph outlines, and doing it properly
+      requires parsing the font file.
+    </div>
+
+    <div class="banner banner--info">
+      <strong>About PNG:</strong> the SVG is reproducible anywhere. A PNG is not — it bakes in
+      whatever font this computer resolved from the stack. Treat the SVG as the master file.
     </div>
 
     <details class="raw-svg">
       <summary>Copy SVG code (use this if the download button does not work)</summary>
-      <p class="hint">Select all of the text below, copy it, paste it into a plain text editor and save the file with a <code>.svg</code> ending.</p>
+      <p class="hint">Select all of the text below, copy it, paste it into a plain text editor and
+         save the file with a <code>.svg</code> ending.</p>
       <textarea id="raw-svg-text" readonly rows="10" spellcheck="false" aria-label="Raw SVG code"></textarea>
     </details>
 
     <p class="status" id="status-line" role="status" aria-live="polite"></p>
-
   </section>
 </main>
 
 <!-- ================= GALLERY ================= -->
 <section class="gallery-section" aria-label="Saved concepts gallery">
   <div class="gallery-head">
-    <h2>Concept gallery</h2>
+    <div class="gallery-head__title">
+      <h2>Concept gallery</h2>
+      <span class="gallery-count" id="gallery-count"></span>
+    </div>
     <div class="gallery-actions">
+      <label class="sr-only" for="gallery-search">Search saved concepts</label>
+      <input type="text" id="gallery-search" placeholder="Search concepts…" autocomplete="off">
       <button type="button" id="btn-export-json" class="btn btn--small">Export gallery as JSON</button>
       <button type="button" id="btn-import-json" class="btn btn--small">Import gallery from JSON</button>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
@@ -318,7 +498,6 @@
     when you saved it.
   </div>
 
-  <!-- Import merge / replace chooser -->
   <div id="import-panel" class="prompt-panel" hidden>
     <p id="import-summary"></p>
     <div class="prompt-panel__actions">
@@ -328,7 +507,6 @@
     </div>
   </div>
 
-  <!-- Typed confirmation for clearing -->
   <div id="clear-panel" class="prompt-panel" hidden>
     <p>This permanently deletes every saved concept in this browser. Type <strong>DELETE</strong> to confirm.</p>
     <div class="prompt-panel__actions">
@@ -341,11 +519,7 @@
 
   <p class="status" id="gallery-status" role="status" aria-live="polite"></p>
 
-  <div id="gallery-empty" class="empty-state">
-    <p><strong>No concepts saved yet.</strong></p>
-    <p>Adjust the controls until you like something, then press <em>Save to gallery</em> at the top of the page.
-       Save several rough ideas rather than trying to perfect one.</p>
-  </div>
+  <div id="gallery-empty" class="empty-state"></div>
 
   <ul id="gallery-list" class="gallery-list"></ul>
 </section>
