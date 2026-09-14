@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-ssr
+dist-static
 coverage
 .screenshots
 playwright-report
@@ -9,6 +10,7 @@ test-results
 .env
 .env.*
 !.env.example
+!.env.static
 .DS_Store
 .vite
 *.tsbuildinfo

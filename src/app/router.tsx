@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createBrowserRouter, createHashRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { ErrorPage } from '@/pages/ErrorPage'
@@ -22,7 +22,18 @@ import {
  * those areas are not built yet. Each is swapped for its real page as its
  * phase lands, with no change needed to the navigation or the layout.
  */
-export const router = createBrowserRouter([
+/*
+ * Hash routing is used when the app is served from a static host that cannot
+ * rewrite unknown paths to index.html -- object storage, a preview build, a
+ * subdirectory. Without it, reloading on /characters returns a 404 from the
+ * host before the app ever runs.
+ *
+ * Normal deployments leave VITE_ROUTER unset and get clean URLs.
+ */
+const createRouter =
+  import.meta.env.VITE_ROUTER === 'hash' ? createHashRouter : createBrowserRouter
+
+export const router = createRouter([
   {
     path: '/',
     element: <AppLayout />,

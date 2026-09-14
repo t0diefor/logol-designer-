@@ -11,6 +11,7 @@ import { CreateProjectDialog } from '@/features/projects/components/CreateProjec
 import { ProjectCard } from '@/features/projects/components/ProjectCard'
 import { useWorkspaceStore } from '@/stores/workspace-store'
 import { useProjectsByRecency } from '@/stores/workspace-selectors'
+import { loadSampleProject } from '@/features/onboarding/sample-project'
 import { PROJECT_STATUS_LABELS, type Project } from '@/types/project'
 
 export function ProjectsPage() {
@@ -93,9 +94,14 @@ export function ProjectsPage() {
           title="No projects yet"
           description="A project is the container for one comic world: its cast, locations, scripts, pages and assets. Create one to get started -- nothing is uploaded anywhere, it is saved in this browser."
           action={
-            <Button variant="primary" icon="plus" onClick={() => setCreateOpen(true)}>
-              Create your first project
-            </Button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button variant="primary" icon="plus" onClick={() => setCreateOpen(true)}>
+                Create your first project
+              </Button>
+              <Button icon="book" onClick={() => loadSampleProject(useWorkspaceStore.getState)}>
+                Load the sample project
+              </Button>
+            </div>
           }
         />
       ) : visible.length === 0 ? (

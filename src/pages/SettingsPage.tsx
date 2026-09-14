@@ -8,6 +8,7 @@ import { formatBytes } from '@/lib/format'
 import { assetTotalBytes, getStorageEstimate } from '@/lib/idb'
 import { EMPTY_WORKSPACE, useWorkspaceStore } from '@/stores/workspace-store'
 import { useTheme } from '@/theme/use-theme'
+import { hasSampleProject, loadSampleProject } from '@/features/onboarding/sample-project'
 
 /** Reads browser storage figures, so the numbers shown are measured not guessed. */
 function useStorageUsage() {
@@ -46,6 +47,7 @@ export function SettingsPage() {
   const projects = useWorkspaceStore((state) => state.projects)
   const replaceAll = useWorkspaceStore((state) => state.replaceAll)
   const [confirmClear, setConfirmClear] = useState(false)
+  const sampleLoaded = useWorkspaceStore(hasSampleProject)
 
   const projectCount = Object.keys(projects).length
   const percentUsed = usage && usage.quota > 0 ? (usage.used / usage.quota) * 100 : 0
@@ -113,6 +115,28 @@ export function SettingsPage() {
               </dl>
             </>
           )}
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader
+            title="Sample project"
+            description="A worked example with characters, a world, a timeline and a script, so every screen has something in it."
+          />
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-md border border-line bg-bg-inset p-4">
+            <div>
+              <p className="text-sm font-medium text-ink">Load &ldquo;The Lantern Wars&rdquo;</p>
+              <p className="mt-1 text-sm text-ink-muted">
+                Creates an ordinary project you can edit or delete like any other.
+              </p>
+            </div>
+            <Button
+              icon="book"
+              disabled={sampleLoaded}
+              onClick={() => loadSampleProject(useWorkspaceStore.getState)}
+            >
+              {sampleLoaded ? 'Already loaded' : 'Load sample project'}
+            </Button>
+          </div>
         </Card>
 
         <Card className="lg:col-span-2">

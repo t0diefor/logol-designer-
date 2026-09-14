@@ -20,6 +20,13 @@ npm run dev          # http://localhost:5173
 No API keys, no account and no backend are needed to run the app. Everything is
 stored in the browser.
 
+### Looking around
+
+On first run the app is empty, which makes it hard to judge. Press **Load the
+sample project** on the dashboard (or in Settings) to fill one project with
+characters, a world, a timeline and a script, so every screen has something in
+it. It is an ordinary project and deleting it works like any other.
+
 ## Scripts
 
 | Command | What it does |
@@ -33,6 +40,7 @@ stored in the browser.
 | `npm run test:watch` | Vitest in watch mode |
 | `npm run verify:ui` | Drive a real browser, screenshot every theme (needs `npm run dev` running) |
 | `npm run check` | typecheck + lint + test + build, in that order |
+| `npm run build:static` | Build to `dist-static/` with hash routing, for any plain static host |
 
 ## Environment variables
 

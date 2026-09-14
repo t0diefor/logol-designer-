@@ -15,6 +15,7 @@ import {
   useCurrentProject,
   useProjectsByRecency,
 } from '@/stores/workspace-selectors'
+import { loadSampleProject } from '@/features/onboarding/sample-project'
 
 /** One tile of the bento grid. `span` controls how much of the 4-column grid it takes. */
 function BentoTile({
@@ -89,11 +90,21 @@ export function DashboardPage() {
         <EmptyState
           icon="book"
           title="Start with a project"
-          description="A project holds one story world: its comics, cast, locations, scripts and artwork. Create one and the rest of the workspace opens up."
+          description="A project holds one story world: its comics, cast, locations, scripts and artwork. Create one and the rest of the workspace opens up — or load the sample to look around something already filled in."
           action={
-            <Button variant="primary" icon="plus" onClick={() => navigate('/projects')}>
-              Create a project
-            </Button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button variant="primary" icon="plus" onClick={() => navigate('/projects')}>
+                Create a project
+              </Button>
+              <Button
+                icon="book"
+                onClick={() => {
+                  loadSampleProject(useWorkspaceStore.getState)
+                }}
+              >
+                Load the sample project
+              </Button>
+            </div>
           }
         />
       </>
