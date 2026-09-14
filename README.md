@@ -12,13 +12,67 @@ so it can be read without a Markdown viewer.
 
 ## Setup
 
-```bash
+Every command below runs **inside the project folder**. Running them anywhere
+else gives `Could not read package.json`, which just means you are in the wrong
+directory.
+
+### Windows (PowerShell)
+
+Paste one line at a time:
+
+```powershell
+cd $HOME\Documents
+git clone https://github.com/t0diefor/logol-designer- panelforge
+cd panelforge
+git checkout claude/intelligent-ride-9vahag
+$env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 npm install
-npm run dev          # http://localhost:5173
+npm run dev
 ```
+
+Then open <http://localhost:5173>. Press `Ctrl+C` in the terminal to stop it.
+
+To come back later, open PowerShell and run `cd $HOME\Documents\panelforge`
+followed by `npm run dev`. The clone and install are one-time.
+
+### macOS / Linux
+
+```bash
+cd ~/Documents
+git clone https://github.com/t0diefor/logol-designer- panelforge
+cd panelforge
+git checkout claude/intelligent-ride-9vahag
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install
+npm run dev
+```
+
+### Why the Playwright line
+
+`playwright` is a development dependency used by `npm run verify:ui`. Without
+that variable, installing it also downloads a ~150 MB browser you do not need
+in order to run the app. Set it and the install takes seconds. If you later
+want `verify:ui`, run `npx playwright install chromium`.
+
+### No `git`?
+
+If `git --version` fails, either install Git for Windows from
+<https://git-scm.com/download/win>, or download the code as a ZIP: open the
+repository on GitHub, switch the branch dropdown to
+`claude/intelligent-ride-9vahag`, then **Code → Download ZIP**. Extract it,
+`cd` into the extracted folder, and continue from `npm install`.
 
 No API keys, no account and no backend are needed to run the app. Everything is
 stored in the browser.
+
+### Troubleshooting
+
+| Message | Cause | Fix |
+| --- | --- | --- |
+| `Could not read package.json` | You are not in the project folder | `cd` into it first |
+| `git` is not recognised | Git is not installed | Install Git, or use the ZIP route above |
+| `Unsupported engine` / syntax errors on install | Node is too old | Install Node 20.19+ or 22.12+ from <https://nodejs.org> |
+| Install hangs on "Downloading Chromium" | Playwright fetching a browser | Cancel, set the skip variable above, run `npm install` again |
+| Port 5173 already in use | Another dev server is running | `npm run dev -- --port 5174` |
 
 ### Looking around
 
