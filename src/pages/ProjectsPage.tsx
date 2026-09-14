@@ -75,7 +75,7 @@ export function ProjectsPage() {
             onChange={(event) =>
               setStatusFilter(event.target.value as Project['status'] | 'all')
             }
-            className="w-auto"
+            fullWidth={false}
           >
             <option value="all">All statuses</option>
             {Object.entries(PROJECT_STATUS_LABELS).map(([value, label]) => (

@@ -9,7 +9,7 @@ import { Icon } from './Icon'
  * ever changes to a borderless-on-surface design, that test must change too.
  */
 const CONTROL_BASE = cn(
-  'w-full rounded-md border border-line bg-bg-inset text-ink',
+  'rounded-md border border-line bg-bg-inset text-ink',
   'border-[length:var(--pf-border-width)]',
   'placeholder:text-ink-faint',
   'transition-[border-color,background-color] duration-[var(--pf-duration-fast)]',
@@ -20,17 +20,26 @@ const CONTROL_BASE = cn(
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   invalid?: boolean
+  /**
+   * Width is an explicit prop rather than something a caller overrides with a
+   * utility class. PanelForge does not use `tailwind-merge`, so a `w-auto`
+   * passed through `className` would not reliably beat a `w-full` baked into
+   * the component -- whichever rule comes later in the compiled stylesheet
+   * wins, regardless of the order in the class attribute. Making it a prop
+   * means the intent is expressed once, in the component, and actually works.
+   */
+  fullWidth?: boolean
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { className, invalid, ...props },
+  { className, invalid, fullWidth = true, ...props },
   ref,
 ) {
   return (
     <input
       ref={ref}
       aria-invalid={invalid || undefined}
-      className={cn(CONTROL_BASE, 'h-10 px-3 text-sm', className)}
+      className={cn(CONTROL_BASE, 'h-10 px-3 text-sm', fullWidth && 'w-full', className)}
       {...props}
     />
   )
@@ -49,7 +58,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       ref={ref}
       rows={rows}
       aria-invalid={invalid || undefined}
-      className={cn(CONTROL_BASE, 'resize-y px-3 py-2 text-sm leading-6', className)}
+      className={cn(CONTROL_BASE, 'w-full resize-y px-3 py-2 text-sm leading-6', className)}
       {...props}
     />
   )
@@ -82,20 +91,26 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
   )
 })
 
-export interface SelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   invalid?: boolean
+  /** See the note on InputProps.fullWidth. */
+  fullWidth?: boolean
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { className, invalid, children, ...props },
+  { className, invalid, fullWidth = true, children, ...props },
   ref,
 ) {
   return (
     <select
       ref={ref}
       aria-invalid={invalid || undefined}
-      className={cn(CONTROL_BASE, 'h-10 cursor-pointer px-3 text-sm', className)}
+      className={cn(
+        CONTROL_BASE,
+        'h-10 cursor-pointer px-3 text-sm',
+        fullWidth ? 'w-full' : 'w-auto',
+        className,
+      )}
       {...props}
     >
       {children}

@@ -147,6 +147,124 @@ await mpage.waitForTimeout(600)
 await mpage.screenshot({ path: `${OUT}/10-mobile-nav.png` })
 console.log('captured 10-mobile-nav')
 
+
+// ===========================================================================
+// Phase 2: Character Builder
+// ===========================================================================
+await page.goto(`${BASE}/characters`, { waitUntil: 'networkidle' })
+await page.waitForTimeout(700)
+await shot('11-characters-empty')
+
+await page.getByRole('button', { name: 'Create your first character' }).click()
+await page.getByLabel('Name').fill('Mira Halloway')
+await page.getByLabel('Role').fill('Protagonist')
+await page.getByRole('button', { name: 'Create character' }).click()
+await page.waitForURL('**/characters/*')
+await page.waitForTimeout(700)
+await shot('12-character-identity')
+
+// Appearance tab, reached with the keyboard rather than a click.
+await page.getByRole('tab', { name: /Identity/ }).focus()
+await page.keyboard.press('ArrowRight')
+await page.waitForTimeout(400)
+const appearanceSelected = await page
+  .getByRole('tab', { name: /Appearance/ })
+  .getAttribute('aria-selected')
+console.log('arrow-key tab navigation selected Appearance:', appearanceSelected)
+if (appearanceSelected !== 'true') problems.push('[a11y] arrow keys did not move between tabs')
+await shot('13-character-appearance')
+
+// Palette: proves the preview plate picks up the colour.
+await page.getByRole('tab', { name: /Identity/ }).click()
+await page.waitForTimeout(300)
+await page.getByRole('button', { name: 'Add colour' }).click()
+await page.waitForTimeout(400)
+
+// Wardrobe and expressions.
+await page.getByRole('tab', { name: /Wardrobe/ }).click()
+await page.getByRole('button', { name: 'Add the first outfit' }).click()
+await page.waitForTimeout(400)
+await shot('14-character-wardrobe')
+
+await page.getByRole('tab', { name: /Expressions/ }).click()
+await page.waitForTimeout(300)
+for (const mood of ['Neutral', 'Angry', 'Afraid']) {
+  await page.getByRole('button', { name: mood, exact: true }).click()
+  await page.waitForTimeout(200)
+}
+await shot('15-character-expressions')
+
+// Reference image upload, exercising the real IndexedDB blob path.
+await page.getByRole('tab', { name: /References/ }).click()
+await page.waitForTimeout(300)
+const png = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAO0lEQVR42u3OMQEAAAgDoC251a3gL2Qg3RkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4G8HkQ4AAX0kXqUAAAAASUVORK5CYII=',
+  'base64',
+)
+await page.setInputFiles('input[type="file"]', {
+  name: 'mira-face.png',
+  mimeType: 'image/png',
+  buffer: png,
+})
+await page.waitForTimeout(1200)
+const referenceShown = await page.getByText('mira-face').count()
+console.log('reference image stored and listed:', referenceShown > 0)
+if (referenceShown === 0) problems.push('[assets] uploaded reference did not appear in the list')
+await shot('16-character-references')
+
+// AI assist: disclosure, generate, review, apply.
+await page.getByRole('tab', { name: /Assist/ }).click()
+await page.waitForTimeout(400)
+await shot('17-ai-disclosure')
+
+await page.getByRole('button', { name: 'Suggest content' }).click()
+await page.waitForTimeout(1400)
+await shot('18-ai-review')
+
+// The record must be untouched until the user accepts something.
+const goalsBeforeApply = await page.evaluate(async () => {
+  const request = indexedDB.open('panelforge')
+  const db = await new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+  const raw = await new Promise((resolve) => {
+    const tx = db.transaction('kv', 'readonly').objectStore('kv').get('panelforge.workspace')
+    tx.onsuccess = () => resolve(tx.result)
+    tx.onerror = () => resolve(null)
+  })
+  if (!raw) return null
+  const parsed = JSON.parse(raw)
+  const characters = Object.values(parsed.state.characters ?? {})
+  return characters[0]?.goals ?? null
+})
+console.log('goals before applying suggestions:', JSON.stringify(goalsBeforeApply))
+if (goalsBeforeApply) problems.push('[ai] a suggestion reached the record before it was accepted')
+
+await page.getByRole('button', { name: 'Accept all' }).click()
+await page.waitForTimeout(400)
+await page.getByRole('button', { name: /Apply \d+ accepted/ }).click()
+await page.waitForTimeout(900)
+await shot('19-ai-applied')
+
+// History should now hold the automatic restore point.
+await page.getByRole('tab', { name: /History/ }).click()
+await page.waitForTimeout(500)
+const restorePoint = await page.getByText('Before AI suggestions').count()
+console.log('automatic restore point saved:', restorePoint > 0)
+if (restorePoint === 0) problems.push('[ai] applying suggestions did not save a restore point')
+await shot('20-character-history')
+
+// Consistency checklist should have moved.
+await page.getByRole('tab', { name: /Identity/ }).click()
+await page.waitForTimeout(500)
+await shot('21-character-complete')
+
+// Cast list with a populated character.
+await page.goto(`${BASE}/characters`, { waitUntil: 'networkidle' })
+await page.waitForTimeout(800)
+await shot('22-characters-populated')
+
 await browser.close()
 
 console.log('\n=== CONSOLE / ASSERTION PROBLEMS ===')

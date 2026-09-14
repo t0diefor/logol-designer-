@@ -2,7 +2,15 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { ErrorPage } from '@/pages/ErrorPage'
-import { LazyRoute, NotFoundPage, ProjectsPage, RoadmapPage, SettingsPage } from './routes'
+import {
+  CharacterDetailPage,
+  CharactersPage,
+  LazyRoute,
+  NotFoundPage,
+  ProjectsPage,
+  RoadmapPage,
+  SettingsPage,
+} from './routes'
 
 /**
  * Route table.
@@ -28,8 +36,25 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // Phase 2-7 placeholders.
-      ...['characters', 'world', 'story', 'assets', 'composer', 'export'].map((path) => ({
+      {
+        path: 'characters',
+        element: (
+          <LazyRoute>
+            <CharactersPage />
+          </LazyRoute>
+        ),
+      },
+      {
+        path: 'characters/:characterId',
+        element: (
+          <LazyRoute>
+            <CharacterDetailPage />
+          </LazyRoute>
+        ),
+      },
+
+      // Phase 3-7 placeholders.
+      ...['world', 'story', 'assets', 'composer', 'export'].map((path) => ({
         path,
         element: (
           <LazyRoute>

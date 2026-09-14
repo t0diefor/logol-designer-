@@ -14,17 +14,6 @@ import { NAV_ITEMS } from '@/app/navigation'
  * discovering which controls are real.
  */
 const PLANNED: Record<string, { phase: number; items: string[] }> = {
-  '/characters': {
-    phase: 2,
-    items: [
-      'Character cards and a full detail view',
-      'Appearance, outfit and expression sheets',
-      'Reference image management',
-      'Consistency checklist',
-      'Duplicate, version notes and history',
-      'AI-assisted expansion with accept, reject or edit for every suggestion',
-    ],
-  },
   '/world': {
     phase: 3,
     items: [

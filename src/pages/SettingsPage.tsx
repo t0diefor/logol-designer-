@@ -124,7 +124,7 @@ export function SettingsPage() {
             <div>
               <p className="text-sm font-medium text-ink">Delete all local data</p>
               <p className="mt-1 text-sm text-ink-muted">
-                Removes every project and comic stored in this browser.
+                Removes every project, comic, character and asset stored in this browser.
               </p>
             </div>
             <Button variant="danger" icon="trash" onClick={() => setConfirmClear(true)}>
@@ -137,12 +137,12 @@ export function SettingsPage() {
       <ConfirmDialog
         open={confirmClear}
         title="Delete all local data?"
-        description={`All ${projectCount} project${projectCount === 1 ? '' : 's'} and every comic inside them will be permanently removed from this browser. This cannot be undone.`}
+        description={`All ${projectCount} project${projectCount === 1 ? '' : 's'} and everything inside them -- comics, characters and assets -- will be permanently removed from this browser. This cannot be undone.`}
         confirmLabel="Delete everything"
         destructive
         onCancel={() => setConfirmClear(false)}
         onConfirm={() => {
-          replaceAll({ projects: {}, comics: {} })
+          replaceAll({ projects: {}, comics: {}, characters: {}, assets: {} })
           setConfirmClear(false)
         }}
       />

@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 import { useWorkspaceStore } from './workspace-store'
+import type { Asset } from '@/types/asset'
+import type { Character } from '@/types/character'
 import type { Comic } from '@/types/comic'
 import type { Project } from '@/types/project'
 
@@ -55,4 +57,51 @@ export function useCurrentComic(): Comic | null {
   const currentComicId = useWorkspaceStore((state) => state.currentComicId)
   const comics = useWorkspaceStore((state) => state.comics)
   return currentComicId ? (comics[currentComicId] ?? null) : null
+}
+
+/** Characters in one project, alphabetical. */
+export function useCharactersForProject(projectId: string | null): Character[] {
+  const characters = useWorkspaceStore((state) => state.characters)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(characters)
+      .filter((character) => character.projectId === projectId)
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [characters, projectId])
+}
+
+/** One character by id, or null. */
+export function useCharacter(characterId: string | undefined): Character | null {
+  const characters = useWorkspaceStore((state) => state.characters)
+  return characterId ? (characters[characterId] ?? null) : null
+}
+
+/** Assets in one project, newest first. */
+export function useAssetsForProject(projectId: string | null): Asset[] {
+  const assets = useWorkspaceStore((state) => state.assets)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(assets)
+      .filter((asset) => asset.projectId === projectId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  }, [assets, projectId])
+}
+
+/**
+ * Every tag used by the characters in a project, with how often, most used
+ * first. Powers the tag filter without needing a separate tag table.
+ */
+export function useCharacterTagCounts(projectId: string | null): { tag: string; count: number }[] {
+  const characters = useCharactersForProject(projectId)
+  return useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const character of characters) {
+      for (const tag of character.tags) {
+        counts.set(tag, (counts.get(tag) ?? 0) + 1)
+      }
+    }
+    return [...counts.entries()]
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
+  }, [characters])
 }

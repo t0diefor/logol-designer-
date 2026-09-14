@@ -97,4 +97,4 @@ export const NAV_ITEMS: NavItem[] = [
 ]
 
 /** The phase currently shipped. Anything above this is labelled as not yet built. */
-export const CURRENT_PHASE = 1
+export const CURRENT_PHASE = 2

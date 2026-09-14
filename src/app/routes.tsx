@@ -17,6 +17,14 @@ export const ProjectsPage = lazy(() =>
   import('@/pages/ProjectsPage').then((m) => ({ default: m.ProjectsPage })),
 )
 
+export const CharactersPage = lazy(() =>
+  import('@/pages/CharactersPage').then((m) => ({ default: m.CharactersPage })),
+)
+
+export const CharacterDetailPage = lazy(() =>
+  import('@/pages/CharacterDetailPage').then((m) => ({ default: m.CharacterDetailPage })),
+)
+
 export const SettingsPage = lazy(() =>
   import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 )
