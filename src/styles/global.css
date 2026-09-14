@@ -1,0 +1,269 @@
+@import 'tailwindcss';
+
+/*
+ * PanelForge global stylesheet.
+ *
+ * The `--pf-*` custom properties are written onto <html> at runtime by
+ * ThemeProvider. The `@theme inline` block below maps them onto Tailwind's
+ * utility namespace, which is what lets `bg-surface` or `text-ink-muted`
+ * follow the active theme with no rebuild and no class swapping.
+ *
+ * `inline` matters here: without it Tailwind would snapshot the value at
+ * build time instead of resolving the variable live.
+ */
+@theme inline {
+  /* Colour roles -- never reference a raw hex in a component. */
+  --color-bg: var(--pf-bg);
+  --color-bg-subtle: var(--pf-bg-subtle);
+  --color-bg-inset: var(--pf-bg-inset);
+
+  --color-surface: var(--pf-surface);
+  --color-surface-raised: var(--pf-surface-raised);
+  --color-surface-overlay: var(--pf-surface-overlay);
+
+  --color-line: var(--pf-border);
+  --color-line-strong: var(--pf-border-strong);
+
+  --color-ink: var(--pf-text);
+  --color-ink-muted: var(--pf-text-muted);
+  --color-ink-faint: var(--pf-text-faint);
+  --color-ink-inverse: var(--pf-text-inverse);
+
+  --color-primary: var(--pf-primary);
+  --color-primary-fg: var(--pf-primary-fg);
+  --color-primary-hover: var(--pf-primary-hover);
+
+  --color-accent: var(--pf-accent);
+  --color-accent-fg: var(--pf-accent-fg);
+
+  --color-success: var(--pf-success);
+  --color-success-fg: var(--pf-success-fg);
+  --color-warning: var(--pf-warning);
+  --color-warning-fg: var(--pf-warning-fg);
+  --color-danger: var(--pf-danger);
+  --color-danger-fg: var(--pf-danger-fg);
+
+  --color-ring: var(--pf-ring);
+  --color-glass: var(--pf-glass-bg);
+  --color-glass-line: var(--pf-glass-border);
+
+  --color-page: var(--pf-canvas);
+  --color-page-grid: var(--pf-canvas-grid);
+
+  /* Typography */
+  --font-display: var(--pf-font-display);
+  --font-body: var(--pf-font-body);
+  --font-mono: var(--pf-font-mono);
+
+  /* Type scale -- mirrors TYPE_SCALE in src/theme/tokens.ts. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2.25rem;
+  --text-3xl: 2.25rem;
+  --text-3xl--line-height: 2.625rem;
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 3.25rem;
+
+  /* Radius scale -- themes swap these wholesale (brutalist sets every step to 0). */
+  --radius-sm: var(--pf-radius-sm);
+  --radius-md: var(--pf-radius-md);
+  --radius-lg: var(--pf-radius-lg);
+  --radius-xl: var(--pf-radius-xl);
+  --radius-pill: var(--pf-radius-pill);
+
+  /* Shadows */
+  --shadow-sm: var(--pf-shadow-sm);
+  --shadow-md: var(--pf-shadow-md);
+  --shadow-lg: var(--pf-shadow-lg);
+
+  /* Breakpoints -- mirrors BREAKPOINTS in src/theme/tokens.ts. */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1600px;
+}
+
+/*
+ * Fallback token values.
+ *
+ * These exist so the page is never unstyled during the first paint, before
+ * ThemeProvider has written the real values. They match the default theme.
+ */
+:root {
+  --pf-bg: #0b0a0f;
+  --pf-surface: #16131f;
+  --pf-text: #ede6d6;
+  --pf-border: #2e2740;
+  --pf-radius-md: 5px;
+  --pf-duration-fast: 180ms;
+  --pf-duration-base: 320ms;
+  --pf-duration-slow: 620ms;
+  --pf-easing: cubic-bezier(0.36, 0.04, 0.22, 1);
+  --pf-texture-image: none;
+  --pf-texture-size: cover;
+  --pf-texture-opacity: 1;
+  --pf-border-width: 1px;
+  --pf-glass-blur: blur(14px);
+}
+
+@layer base {
+  * {
+    border-color: var(--pf-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* Set from the theme's `scheme` so native scrollbars and form controls match. */
+    color-scheme: var(--pf-color-scheme, dark);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--pf-bg);
+    color: var(--pf-text);
+    font-family: var(--pf-font-body, system-ui, sans-serif);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * Decorative theme texture. Fixed and non-interactive, painted behind the
+   * app. Opacity is theme-controlled and set to 0 by themes that want none.
+   */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--pf-texture-image);
+    background-size: var(--pf-texture-size);
+    background-repeat: repeat;
+    opacity: var(--pf-texture-opacity);
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--pf-font-display, system-ui, sans-serif);
+    font-weight: var(--pf-display-weight, 600);
+    letter-spacing: var(--pf-display-tracking, 0);
+    text-transform: var(--pf-display-transform, none);
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  /*
+   * One focus style for the whole app. `:focus-visible` keeps it off mouse
+   * clicks but guarantees it for keyboard users, which is the accessibility
+   * requirement. Never remove this without replacing it.
+   */
+  :focus-visible {
+    outline: 2px solid var(--pf-ring);
+    outline-offset: 2px;
+    border-radius: var(--pf-radius-sm);
+  }
+
+  /* Inputs inherit the app font rather than the browser default. */
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  ::placeholder {
+    color: var(--pf-text-faint);
+    opacity: 1;
+  }
+}
+
+@layer components {
+  /*
+   * Glass surface. Falls back to the opaque overlay colour when the theme has
+   * glass switched off, or when the browser lacks backdrop-filter support.
+   */
+  .pf-glass {
+    background-color: var(--pf-glass-bg, var(--pf-surface));
+    border: var(--pf-border-width) solid var(--pf-glass-border, var(--pf-border));
+    backdrop-filter: var(--pf-glass-blur);
+    -webkit-backdrop-filter: var(--pf-glass-blur);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .pf-glass {
+      background-color: var(--pf-surface-overlay);
+    }
+  }
+
+  /* Themed scrollbars, so a dark theme does not get a bright native bar. */
+  .pf-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--pf-border-strong) transparent;
+  }
+  .pf-scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .pf-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--pf-border-strong);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  .pf-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/*
+ * Reduced motion.
+ *
+ * Two triggers: the OS-level media query, and `data-motion="reduced"` which
+ * ThemeProvider sets when the user picks that in Settings. Animation is
+ * reduced to a near-zero duration rather than removed entirely, so that
+ * animation completion callbacks still fire and no UI gets stuck mid-state.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
