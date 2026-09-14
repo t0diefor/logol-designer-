@@ -81,6 +81,11 @@ export const createProjectSlice: WorkspaceSliceCreator<ProjectSlice> = (set, get
       const comics = belongsElsewhere(state.comics)
       const characters = belongsElsewhere(state.characters)
       const assets = belongsElsewhere(state.assets)
+      const locations = belongsElsewhere(state.locations)
+      const factions = belongsElsewhere(state.factions)
+      const systems = belongsElsewhere(state.systems)
+      const worldEvents = belongsElsewhere(state.worldEvents)
+      const worldObjects = belongsElsewhere(state.worldObjects)
 
       const droppedCurrentComic =
         state.currentComicId !== null && !(state.currentComicId in comics)
@@ -90,6 +95,11 @@ export const createProjectSlice: WorkspaceSliceCreator<ProjectSlice> = (set, get
         comics,
         characters,
         assets,
+        locations,
+        factions,
+        systems,
+        worldEvents,
+        worldObjects,
         currentProjectId: state.currentProjectId === id ? null : state.currentProjectId,
         currentComicId: droppedCurrentComic ? null : state.currentComicId,
       }

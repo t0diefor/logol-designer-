@@ -1,7 +1,5 @@
-import type { Character } from '@/types/character'
-
 /**
- * The AI contract.
+ * The AI contract, entity-agnostic.
  *
  * Two rules shape everything in this folder:
  *
@@ -13,6 +11,11 @@ import type { Character } from '@/types/character'
  *    actually do. Mock mode says so in the UI, and tools that need a real
  *    provider are disabled rather than quietly falling back to invented
  *    output presented as the real thing.
+ *
+ * The proposal machinery is generic over the entity being edited so that
+ * characters, locations, factions and (later) scenes all share one reviewed
+ * apply path. Each entity supplies a `FieldAdapter` saying how to read and
+ * write its fields as plain strings; everything else is common.
  */
 
 export type AIToolId =
@@ -32,8 +35,8 @@ export type AIToolId =
  * be detected rather than silently clobbering a newer edit.
  */
 export interface FieldProposal {
-  /** Dotted path into the character, e.g. `appearance.hair`. */
-  key: CharacterFieldKey
+  /** Dotted path into the entity, e.g. `appearance.hair`. */
+  key: string
   /** Human label for the review UI. */
   label: string
   /** The value as it stood when the proposal was made. */
@@ -52,123 +55,44 @@ export interface ReviewableProposal extends FieldProposal {
   edited: string
 }
 
-/** Fields the character expansion tool is allowed to propose changes to. */
-export const CHARACTER_FIELD_KEYS = [
-  'role',
-  'pronouns',
-  'ageRange',
-  'appearance.hair',
-  'appearance.eyes',
-  'appearance.skinTone',
-  'appearance.bodyType',
-  'appearance.height',
-  'appearance.distinguishingMarks',
-  'appearance.general',
-  'personality',
-  'powers',
-  'weaknesses',
-  'goals',
-  'backstory',
-  'dialogueStyle',
-] as const
-
-export type CharacterFieldKey = (typeof CHARACTER_FIELD_KEYS)[number]
-
-export const CHARACTER_FIELD_LABELS: Record<CharacterFieldKey, string> = {
-  role: 'Role',
-  pronouns: 'Pronouns',
-  ageRange: 'Age range',
-  'appearance.hair': 'Hair',
-  'appearance.eyes': 'Eyes',
-  'appearance.skinTone': 'Skin tone',
-  'appearance.bodyType': 'Body type',
-  'appearance.height': 'Height',
-  'appearance.distinguishingMarks': 'Distinguishing marks',
-  'appearance.general': 'General appearance',
-  personality: 'Personality traits',
-  powers: 'Powers and abilities',
-  weaknesses: 'Weaknesses',
-  goals: 'Goals',
-  backstory: 'Backstory',
-  dialogueStyle: 'Dialogue style',
-}
-
-/** Reads a field as a string, flattening the one array field for a uniform UI. */
-export function readCharacterField(character: Character, key: CharacterFieldKey): string {
-  switch (key) {
-    case 'personality':
-      return character.personality.join(', ')
-    case 'appearance.hair':
-      return character.appearance.hair
-    case 'appearance.eyes':
-      return character.appearance.eyes
-    case 'appearance.skinTone':
-      return character.appearance.skinTone
-    case 'appearance.bodyType':
-      return character.appearance.bodyType
-    case 'appearance.height':
-      return character.appearance.height
-    case 'appearance.distinguishingMarks':
-      return character.appearance.distinguishingMarks
-    case 'appearance.general':
-      return character.appearance.general
-    default:
-      return character[key]
-  }
-}
-
 /**
- * Builds the patch that applying one accepted proposal would produce.
+ * How to read and write one entity's fields as strings.
  *
- * Returns a partial rather than mutating, so the caller can merge several
- * accepted proposals into a single store update and therefore a single undo
- * point and a single autosave write.
+ * Strings, because the review UI is uniform: every proposal is text the user
+ * can read, edit and compare. Fields that are not strings underneath (an
+ * array of traits, a list of world rules) are flattened on read and parsed on
+ * write by the adapter, so the UI never has to know the difference.
  */
-export function writeCharacterField(
-  character: Character,
-  key: CharacterFieldKey,
-  value: string,
-): Partial<Character> {
-  if (key === 'personality') {
-    return {
-      personality: value
-        .split(',')
-        .map((trait) => trait.trim())
-        .filter(Boolean)
-        .slice(0, 20),
-    }
-  }
-
-  if (key.startsWith('appearance.')) {
-    const field = key.slice('appearance.'.length) as keyof Character['appearance']
-    return { appearance: { ...character.appearance, [field]: value } }
-  }
-
-  return { [key]: value } as Partial<Character>
+export interface FieldAdapter<T> {
+  read: (entity: T, key: string) => string
+  write: (entity: T, key: string, value: string) => Partial<T>
 }
 
 /**
  * Whether the underlying field has changed since the proposal was made.
  *
  * A proposal records the value it was generated against. If the live value no
- * longer matches, the user edited that field in another tab while the review
- * panel was open, and applying the suggestion would destroy an edit they made
- * *after* seeing the suggestion -- exactly the silent overwrite this whole
- * feature exists to prevent.
+ * longer matches, the user edited that field while the review panel was open,
+ * and applying the suggestion would destroy an edit they made *after* seeing
+ * it -- exactly the silent overwrite this feature exists to prevent.
  *
- * Deliberately a pure function of the live character rather than something
+ * Deliberately a pure function of the live entity rather than something
  * tracked in state: staleness is then derived during render and cannot go out
  * of date, and there is no effect writing state back on every store change.
  */
-export function isProposalStale(character: Character, proposal: FieldProposal): boolean {
-  return readCharacterField(character, proposal.key) !== proposal.current
+export function isProposalStale<T>(
+  entity: T,
+  proposal: FieldProposal,
+  adapter: FieldAdapter<T>,
+): boolean {
+  return adapter.read(entity, proposal.key) !== proposal.current
 }
 
-export interface PatchResult {
+export interface PatchResult<T> {
   /** The changes to write. Never includes a stale proposal. */
-  patch: Partial<Character>
+  patch: Partial<T>
   /** Keys that were accepted but skipped because the field changed underneath. */
-  skipped: CharacterFieldKey[]
+  skipped: string[]
   /** How many proposals will actually be written. */
   appliedCount: number
 }
@@ -179,18 +103,19 @@ export interface PatchResult {
  * The UI blocks a stale proposal from being applied before it reaches here;
  * this second check is defence in depth, so no future caller can bypass it.
  */
-export function buildPatch(
-  character: Character,
+export function buildPatch<T extends object>(
+  entity: T,
   proposals: ReviewableProposal[],
-): PatchResult {
-  let patch: Partial<Character> = {}
-  const skipped: CharacterFieldKey[] = []
+  adapter: FieldAdapter<T>,
+): PatchResult<T> {
+  let patch: Partial<T> = {}
+  const skipped: string[] = []
   let appliedCount = 0
 
   for (const proposal of proposals) {
     if (proposal.decision !== 'accepted') continue
 
-    if (isProposalStale(character, proposal)) {
+    if (isProposalStale(entity, proposal, adapter)) {
       skipped.push(proposal.key)
       continue
     }
@@ -198,10 +123,10 @@ export function buildPatch(
     const value = proposal.edited.trim()
     if (!value) continue
 
-    // Appearance is merged against the running patch, not the original, so
-    // accepting several appearance fields at once does not lose all but the last.
-    const merged = { ...character, ...patch } as Character
-    patch = { ...patch, ...writeCharacterField(merged, proposal.key, value) }
+    // Nested groups are merged against the running patch, not the original, so
+    // accepting several fields in one group does not lose all but the last.
+    const merged = { ...entity, ...patch } as T
+    patch = { ...patch, ...adapter.write(merged, proposal.key, value) }
     appliedCount += 1
   }
 
@@ -229,7 +154,8 @@ export interface ProviderStatus {
   estimatedCostCad: number
 }
 
-export interface AIProvider {
-  status: ProviderStatus
-  expandCharacter(character: Character, context: AIRequestContext): Promise<FieldProposal[]>
-}
+/** A generator produces proposals for one entity. One per tool. */
+export type ProposalGenerator<T> = (
+  entity: T,
+  context: AIRequestContext,
+) => Promise<FieldProposal[]>

@@ -8,7 +8,9 @@ import { Icon } from '@/components/ui/Icon'
 import { Select } from '@/components/ui/Input'
 import { Tabs, type TabDefinition } from '@/components/ui/Tabs'
 import { AIExpansionPanel } from '@/features/ai/components/AIExpansionPanel'
-import { useCharacterExpansion } from '@/features/ai/use-character-expansion'
+import { useExpansion } from '@/features/ai/use-expansion'
+import { expandCharacter } from '@/features/ai/provider-registry'
+import { characterAdapter } from '@/features/ai/adapters/character-adapter'
 import { CharacterPreview } from '@/features/characters/components/CharacterPreview'
 import { ConsistencyPanel } from '@/features/characters/components/ConsistencyPanel'
 import { AppearanceSection } from '@/features/characters/components/sections/AppearanceSection'
@@ -49,7 +51,7 @@ export function CharacterDetailPage() {
   const [expressionId, setExpressionId] = useState<string>('')
   const [applied, setApplied] = useState<string | null>(null)
 
-  const expansion = useCharacterExpansion(character)
+  const expansion = useExpansion(character, expandCharacter)
 
   const tabs = useMemo<TabDefinition[]>(() => {
     if (!character) return []
@@ -150,7 +152,11 @@ export function CharacterDetailPage() {
             {tab === 'history' ? <HistorySection character={character} /> : null}
             {tab === 'assist' ? (
               <AIExpansionPanel
-                character={character}
+                entity={character}
+                adapter={characterAdapter}
+                title="Expand this character"
+                summary="Suggests starting text for fields you have left empty: appearance, traits, weaknesses, goals, dialogue style and a backstory opener."
+                reads="This character's name and role. Nothing else, and nothing from other projects."
                 tool={expansion}
                 onApply={(patch, count) => {
                   // Snapshot before writing, so applying suggestions is always

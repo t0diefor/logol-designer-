@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Character } from '@/types/character'
-import { getProvider } from './provider-registry'
-import type { ReviewableProposal } from './types'
+import type { ProposalGenerator, ReviewableProposal } from './types'
 
 export type AIRunState = 'idle' | 'running' | 'review' | 'error' | 'empty'
 
 /**
- * Drives one run of the character expansion tool.
+ * Drives one run of a proposal-generating AI tool, for any entity type.
  *
  * Handles the four states the brief asks for -- loading, error, cancellation,
  * and a reviewable result -- plus a fifth that matters in practice: `empty`,
@@ -14,7 +12,7 @@ export type AIRunState = 'idle' | 'running' | 'review' | 'error' | 'empty'
  * Showing "no suggestions, your sheet is complete" is a better answer than an
  * empty review list that looks broken.
  */
-export function useCharacterExpansion(character: Character | null) {
+export function useExpansion<T>(entity: T | null, generate: ProposalGenerator<T>) {
   const [state, setState] = useState<AIRunState>('idle')
   const [proposals, setProposals] = useState<ReviewableProposal[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +33,7 @@ export function useCharacterExpansion(character: Character | null) {
   }, [])
 
   const run = useCallback(async () => {
-    if (!character) return
+    if (entity === null) return
 
     controllerRef.current?.abort()
     const controller = new AbortController()
@@ -46,7 +44,7 @@ export function useCharacterExpansion(character: Character | null) {
     setProposals([])
 
     try {
-      const result = await getProvider().expandCharacter(character, { signal: controller.signal })
+      const result = await generate(entity, { signal: controller.signal })
       if (controller.signal.aborted) return
 
       if (result.length === 0) {
@@ -70,7 +68,7 @@ export function useCharacterExpansion(character: Character | null) {
     } finally {
       if (controllerRef.current === controller) controllerRef.current = null
     }
-  }, [character])
+  }, [entity, generate])
 
   const cancel = useCallback(() => {
     controllerRef.current?.abort()
@@ -127,3 +125,5 @@ export function useCharacterExpansion(character: Character | null) {
     rebase,
   }
 }
+
+export type ExpansionTool = ReturnType<typeof useExpansion>

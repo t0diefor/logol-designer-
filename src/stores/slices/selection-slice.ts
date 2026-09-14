@@ -17,6 +17,6 @@ export const createSelectionSlice: WorkspaceSliceCreator<SelectionSlice> = (set)
 
   setCurrentComic: (id) => set({ currentComicId: id }),
 
-  replaceAll: ({ projects, comics, characters, assets }) =>
-    set({ projects, comics, characters, assets, currentProjectId: null, currentComicId: null }),
+  replaceAll: (data) =>
+    set({ ...data, currentProjectId: null, currentComicId: null }),
 })

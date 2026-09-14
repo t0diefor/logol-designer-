@@ -124,7 +124,27 @@ export const createCharacterSlice: WorkspaceSliceCreator<CharacterSlice> = (set,
         }
       }
 
-      return { characters }
+      /*
+       * World records that named this character are detached, not deleted.
+       * An event still happened; it just no longer links to a sheet.
+       */
+      const worldEvents = { ...state.worldEvents }
+      for (const [eventId, event] of Object.entries(worldEvents)) {
+        if (!event.involvedCharacterIds.includes(id)) continue
+        worldEvents[eventId] = {
+          ...event,
+          involvedCharacterIds: event.involvedCharacterIds.filter((c) => c !== id),
+          updatedAt: nowIso(),
+        }
+      }
+
+      const worldObjects = { ...state.worldObjects }
+      for (const [objectId, object] of Object.entries(worldObjects)) {
+        if (object.holderCharacterId !== id) continue
+        worldObjects[objectId] = { ...object, holderCharacterId: null, updatedAt: nowIso() }
+      }
+
+      return { characters, worldEvents, worldObjects }
     }),
 
   duplicateCharacter: (id) => {

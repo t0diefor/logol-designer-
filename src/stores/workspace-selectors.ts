@@ -4,6 +4,13 @@ import type { Asset } from '@/types/asset'
 import type { Character } from '@/types/character'
 import type { Comic } from '@/types/comic'
 import type { Project } from '@/types/project'
+import type {
+  Faction,
+  Location,
+  WorldEvent,
+  WorldObject,
+  WorldSystem,
+} from '@/types/world'
 
 /**
  * Derived views over the workspace store.
@@ -104,4 +111,92 @@ export function useCharacterTagCounts(projectId: string | null): { tag: string; 
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
   }, [characters])
+}
+
+/* ------------------------------------------------------------------ */
+/* World                                                               */
+/* ------------------------------------------------------------------ */
+
+/** Locations in one project, alphabetical. */
+export function useLocationsForProject(projectId: string | null): Location[] {
+  const locations = useWorkspaceStore((state) => state.locations)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(locations)
+      .filter((location) => location.projectId === projectId)
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [locations, projectId])
+}
+
+/** Factions in one project, alphabetical. */
+export function useFactionsForProject(projectId: string | null): Faction[] {
+  const factions = useWorkspaceStore((state) => state.factions)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(factions)
+      .filter((faction) => faction.projectId === projectId)
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [factions, projectId])
+}
+
+/** Magic, technology, culture and other systems in one project. */
+export function useSystemsForProject(projectId: string | null): WorldSystem[] {
+  const systems = useWorkspaceStore((state) => state.systems)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(systems)
+      .filter((system) => system.projectId === projectId)
+      .sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name))
+  }, [systems, projectId])
+}
+
+/**
+ * Timeline events in chronological order.
+ *
+ * Ordered by `sortKey`, not by the in-world date label, because invented
+ * calendars ("Third Age, year 412") cannot be parsed or compared. The label
+ * stays expressive; the ordering stays reliable. `createdAt` breaks ties so
+ * the order is stable when two events share a key.
+ */
+export function useTimelineForProject(projectId: string | null): WorldEvent[] {
+  const worldEvents = useWorkspaceStore((state) => state.worldEvents)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(worldEvents)
+      .filter((event) => event.projectId === projectId)
+      .sort((a, b) => a.sortKey - b.sortKey || a.createdAt.localeCompare(b.createdAt))
+  }, [worldEvents, projectId])
+}
+
+/** Significant objects in one project, alphabetical. */
+export function useWorldObjectsForProject(projectId: string | null): WorldObject[] {
+  const worldObjects = useWorkspaceStore((state) => state.worldObjects)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(worldObjects)
+      .filter((object) => object.projectId === projectId)
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [worldObjects, projectId])
+}
+
+/** Counts for the world overview tabs, computed once. */
+export function useWorldCounts(projectId: string | null) {
+  const locations = useLocationsForProject(projectId)
+  const factions = useFactionsForProject(projectId)
+  const systems = useSystemsForProject(projectId)
+  const events = useTimelineForProject(projectId)
+  const objects = useWorldObjectsForProject(projectId)
+
+  return useMemo(
+    () => ({
+      locations: locations.length,
+      factions: factions.length,
+      systems: systems.length,
+      events: events.length,
+      objects: objects.length,
+      total:
+        locations.length + factions.length + systems.length + events.length + objects.length,
+    }),
+    [locations, factions, systems, events, objects],
+  )
 }

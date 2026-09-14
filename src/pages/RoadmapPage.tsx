@@ -14,17 +14,6 @@ import { NAV_ITEMS } from '@/app/navigation'
  * discovering which controls are real.
  */
 const PLANNED: Record<string, { phase: number; items: string[] }> = {
-  '/world': {
-    phase: 3,
-    items: [
-      'Locations, factions, cultures and magic or technology systems',
-      'Lore editor with world rules',
-      'Timeline of historical events',
-      'Relationship graph',
-      'Node-based map workspace',
-      'Moodboards',
-    ],
-  },
   '/story': {
     phase: 4,
     items: [

@@ -10,6 +10,7 @@ import {
   ProjectsPage,
   RoadmapPage,
   SettingsPage,
+  WorldPage,
 } from './routes'
 
 /**
@@ -53,8 +54,17 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // Phase 3-7 placeholders.
-      ...['world', 'story', 'assets', 'composer', 'export'].map((path) => ({
+      {
+        path: 'world',
+        element: (
+          <LazyRoute>
+            <WorldPage />
+          </LazyRoute>
+        ),
+      },
+
+      // Phase 4-7 placeholders.
+      ...['story', 'assets', 'composer', 'export'].map((path) => ({
         path,
         element: (
           <LazyRoute>

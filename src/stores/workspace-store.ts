@@ -5,6 +5,7 @@ import { usePersistenceStore } from './persistence-store'
 import { createProjectSlice } from './slices/project-slice'
 import { createCharacterSlice } from './slices/character-slice'
 import { createAssetSlice } from './slices/asset-slice'
+import { createWorldSlice } from './slices/world-slice'
 import { createSelectionSlice } from './slices/selection-slice'
 import type { WorkspaceState } from './slices/types'
 
@@ -40,30 +41,48 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       ...createProjectSlice(...args),
       ...createCharacterSlice(...args),
       ...createAssetSlice(...args),
+      ...createWorldSlice(...args),
       ...createSelectionSlice(...args),
     }),
     {
       name: 'panelforge.workspace',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => idbStorage),
       partialize: (state) => ({
         projects: state.projects,
         comics: state.comics,
         characters: state.characters,
         assets: state.assets,
+        locations: state.locations,
+        factions: state.factions,
+        systems: state.systems,
+        worldEvents: state.worldEvents,
+        worldObjects: state.worldObjects,
         currentProjectId: state.currentProjectId,
         currentComicId: state.currentComicId,
       }),
       /*
-       * Version 1 (phase 1) had no characters or assets. Rather than discard a
-       * user's projects on upgrade, the missing collections are filled in.
+       * Each phase adds collections. Rather than discard a user's work on
+       * upgrade, missing collections are filled in with empty records.
+       * v1 (phase 1): projects and comics only.
+       * v2 (phase 2): + characters, assets.
+       * v3 (phase 3): + locations, factions, systems, worldEvents, worldObjects.
        */
       migrate: (persisted, fromVersion) => {
         const state = (persisted ?? {}) as Partial<WorkspaceState>
+        const filled = { ...state }
         if (fromVersion < 2) {
-          return { ...state, characters: state.characters ?? {}, assets: state.assets ?? {} }
+          filled.characters = filled.characters ?? {}
+          filled.assets = filled.assets ?? {}
         }
-        return state
+        if (fromVersion < 3) {
+          filled.locations = filled.locations ?? {}
+          filled.factions = filled.factions ?? {}
+          filled.systems = filled.systems ?? {}
+          filled.worldEvents = filled.worldEvents ?? {}
+          filled.worldObjects = filled.worldObjects ?? {}
+        }
+        return filled
       },
       onRehydrateStorage: () => (_state, error) => {
         // Hydration finishing is what unblocks the UI, so it is reported either
@@ -79,3 +98,4 @@ export const useWorkspaceStore = create<WorkspaceState>()(
 )
 
 export type { WorkspaceState, WorkspaceData } from './slices/types'
+export { EMPTY_WORKSPACE } from './slices/types'

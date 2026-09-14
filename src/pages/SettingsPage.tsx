@@ -6,7 +6,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { ThemeSwitcher } from '@/theme/components/ThemeSwitcher'
 import { formatBytes } from '@/lib/format'
 import { assetTotalBytes, getStorageEstimate } from '@/lib/idb'
-import { useWorkspaceStore } from '@/stores/workspace-store'
+import { EMPTY_WORKSPACE, useWorkspaceStore } from '@/stores/workspace-store'
 import { useTheme } from '@/theme/use-theme'
 
 /** Reads browser storage figures, so the numbers shown are measured not guessed. */
@@ -142,7 +142,7 @@ export function SettingsPage() {
         destructive
         onCancel={() => setConfirmClear(false)}
         onConfirm={() => {
-          replaceAll({ projects: {}, comics: {}, characters: {}, assets: {} })
+          replaceAll(EMPTY_WORKSPACE)
           setConfirmClear(false)
         }}
       />

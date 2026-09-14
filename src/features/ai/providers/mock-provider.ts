@@ -2,10 +2,9 @@ import type { Character } from '@/types/character'
 import {
   CHARACTER_FIELD_LABELS,
   readCharacterField,
-  type AIProvider,
-  type AIRequestContext,
-  type FieldProposal,
-} from '../types'
+  type CharacterFieldKey,
+} from '../adapters/character-adapter'
+import type { AIRequestContext, FieldProposal, ProviderStatus } from '../types'
 
 /**
  * The offline provider.
@@ -112,19 +111,21 @@ const BACKSTORY_OPENERS = [
 
 const MOCK_DELAY_MS = 550
 
-export const mockProvider: AIProvider = {
-  status: {
-    id: 'mock',
-    name: 'Mock mode',
-    configured: false,
-    // Only the tools this offline provider can honestly perform.
-    supports: ['character.expand', 'character.consistency'],
-    description:
-      'No AI provider is configured, so suggestions are composed locally from writing templates. They are not model output. Configure a provider in phase 8 for real generation.',
-    estimatedCostCad: 0,
-  },
+export const mockProviderStatus: ProviderStatus = {
+  id: 'mock',
+  name: 'Mock mode',
+  configured: false,
+  // Only the tools this offline provider can honestly perform.
+  supports: ['character.expand', 'character.consistency', 'world.expand'],
+  description:
+    'No AI provider is configured, so suggestions are composed locally from writing templates. They are not model output. Configure a provider in phase 8 for real generation.',
+  estimatedCostCad: 0,
+}
 
-  async expandCharacter(character: Character, { signal }: AIRequestContext) {
+export async function mockExpandCharacter(
+  character: Character,
+  { signal }: AIRequestContext,
+): Promise<FieldProposal[]> {
     // A short delay so the loading, cancel and error states are real rather
     // than theoretical -- they have to be exercisable before a provider exists.
     await new Promise<void>((resolve, reject) => {
@@ -137,7 +138,7 @@ export const mockProvider: AIProvider = {
 
     const seed = seedFrom(`${character.name}|${character.role}`)
 
-    const candidates: { key: FieldProposal['key']; value: string; rationale: string }[] = [
+    const candidates: { key: CharacterFieldKey; value: string; rationale: string }[] = [
       {
         key: 'appearance.hair',
         value: pick(HAIR, seed, 1),
@@ -200,5 +201,4 @@ export const mockProvider: AIProvider = {
         proposed: value,
         rationale,
       }))
-  },
 }

@@ -3,6 +3,7 @@ import type { Asset } from '@/types/asset'
 import type { Character } from '@/types/character'
 import type { Comic } from '@/types/comic'
 import type { Project, ProjectDraft } from '@/types/project'
+import type { Faction, Location, WorldEvent, WorldObject, WorldSystem } from '@/types/world'
 
 /**
  * The workspace store, assembled from slices.
@@ -53,6 +54,37 @@ export interface AssetSlice {
   deleteAsset: (id: string) => void
 }
 
+export interface WorldSlice {
+  locations: Record<string, Location>
+  factions: Record<string, Faction>
+  systems: Record<string, WorldSystem>
+  worldEvents: Record<string, WorldEvent>
+  worldObjects: Record<string, WorldObject>
+
+  createLocation: (projectId: string, name: string) => Location
+  updateLocation: (id: string, changes: Partial<Location>) => void
+  /** Detaches children and references rather than cascading the delete. */
+  deleteLocation: (id: string) => void
+
+  createFaction: (projectId: string, name: string) => Faction
+  updateFaction: (id: string, changes: Partial<Faction>) => void
+  deleteFaction: (id: string) => void
+
+  createSystem: (projectId: string, name: string) => WorldSystem
+  updateSystem: (id: string, changes: Partial<WorldSystem>) => void
+  deleteSystem: (id: string) => void
+
+  createWorldEvent: (projectId: string, title: string) => WorldEvent
+  updateWorldEvent: (id: string, changes: Partial<WorldEvent>) => void
+  deleteWorldEvent: (id: string) => void
+  /** Swaps sort keys with the neighbouring event. */
+  moveWorldEvent: (id: string, direction: 'earlier' | 'later') => void
+
+  createWorldObject: (projectId: string, name: string) => WorldObject
+  updateWorldObject: (id: string, changes: Partial<WorldObject>) => void
+  deleteWorldObject: (id: string) => void
+}
+
 export interface SelectionSlice {
   currentProjectId: string | null
   currentComicId: string | null
@@ -70,9 +102,37 @@ export interface WorkspaceData {
   comics: Record<string, Comic>
   characters: Record<string, Character>
   assets: Record<string, Asset>
+  locations: Record<string, Location>
+  factions: Record<string, Faction>
+  systems: Record<string, WorldSystem>
+  worldEvents: Record<string, WorldEvent>
+  worldObjects: Record<string, WorldObject>
 }
 
-export type WorkspaceState = ProjectSlice & CharacterSlice & AssetSlice & SelectionSlice
+/**
+ * An empty workspace, in one place.
+ *
+ * Every phase adds a collection, and "delete everything" / "import a project"
+ * both need the full shape. Naming it here means adding a collection updates
+ * those call sites automatically instead of breaking them one by one.
+ */
+export const EMPTY_WORKSPACE: WorkspaceData = {
+  projects: {},
+  comics: {},
+  characters: {},
+  assets: {},
+  locations: {},
+  factions: {},
+  systems: {},
+  worldEvents: {},
+  worldObjects: {},
+}
+
+export type WorkspaceState = ProjectSlice &
+  CharacterSlice &
+  AssetSlice &
+  WorldSlice &
+  SelectionSlice
 
 /** Slice creator shape, with the persist middleware's mutator declared. */
 export type WorkspaceSliceCreator<T> = StateCreator<
@@ -81,3 +141,6 @@ export type WorkspaceSliceCreator<T> = StateCreator<
   [],
   T
 >
+
+/** Alias used by the world slice, which is long enough to want its own name. */
+export type WorldSliceCreator<T> = WorkspaceSliceCreator<T>

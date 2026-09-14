@@ -4,14 +4,24 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Textarea } from '@/components/ui/Input'
 import { getProvider } from '../provider-registry'
-import { buildPatch, isProposalStale, readCharacterField } from '../types'
-import type { useCharacterExpansion } from '../use-character-expansion'
-import type { Character } from '@/types/character'
+import { buildPatch, isProposalStale, type FieldAdapter } from '../types'
+import type { useExpansion } from '../use-expansion'
 
-export interface AIExpansionPanelProps {
-  character: Character
-  tool: ReturnType<typeof useCharacterExpansion>
-  onApply: (patch: Partial<Character>, acceptedCount: number) => void
+export interface AIExpansionPanelProps<T extends object> {
+  /** The record being reviewed against, read live so staleness stays accurate. */
+  entity: T
+  adapter: FieldAdapter<T>
+  tool: ReturnType<typeof useExpansion<T>>
+  onApply: (patch: Partial<T>, acceptedCount: number) => void
+
+  /** Panel heading, e.g. "Expand this character". */
+  title: string
+  /** One line saying what the tool does. */
+  summary: string
+  /** What the tool reads. Shown in the disclosure block before it runs. */
+  reads: string
+  /** Label for the generate button. */
+  actionLabel?: string
 }
 
 /**
@@ -27,7 +37,16 @@ export interface AIExpansionPanelProps {
  * backstory would be worse than no tool, so the affordances that prevent that
  * are the feature.
  */
-export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelProps) {
+export function AIExpansionPanel<T extends object>({
+  entity,
+  adapter,
+  tool,
+  onApply,
+  title,
+  summary,
+  reads,
+  actionLabel = 'Suggest content',
+}: AIExpansionPanelProps<T>) {
   const provider = getProvider()
   const { status } = provider
 
@@ -37,7 +56,9 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
    * the warning appears immediately and cannot drift out of date.
    */
   const staleKeys = new Set(
-    tool.proposals.filter((proposal) => isProposalStale(character, proposal)).map((p) => p.key),
+    tool.proposals
+      .filter((proposal) => isProposalStale(entity, proposal, adapter))
+      .map((p) => p.key),
   )
 
   const applicableCount = tool.proposals.filter(
@@ -56,13 +77,10 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
               <Icon name="sparkles" size={18} />
             </span>
             <h3 id="pf-ai-tool" className="text-lg text-ink">
-              Expand this character
+              {title}
             </h3>
           </div>
-          <p className="mt-1.5 max-w-xl text-sm leading-6 text-ink-muted">
-            Suggests starting text for fields you have left empty: appearance, traits, weaknesses,
-            goals, dialogue style and a backstory opener.
-          </p>
+          <p className="mt-1.5 max-w-xl text-sm leading-6 text-ink-muted">{summary}</p>
         </div>
         <Badge tone={status.configured ? 'success' : 'warning'}>
           {status.configured ? status.name : 'Mock mode'}
@@ -72,9 +90,7 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
       {/* The disclosure block. Four questions, answered before anything runs. */}
       <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
         <dt className="text-ink-faint">Reads</dt>
-        <dd className="text-ink-muted">
-          This character&apos;s name and role. Nothing else, and nothing from other projects.
-        </dd>
+        <dd className="text-ink-muted">{reads}</dd>
 
         <dt className="text-ink-faint">Changes</dt>
         <dd className="text-ink-muted">
@@ -105,7 +121,7 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
           </>
         ) : (
           <Button variant="primary" icon="sparkles" onClick={() => void tool.run()}>
-            {tool.state === 'review' ? 'Generate again' : 'Suggest content'}
+            {tool.state === 'review' ? 'Generate again' : actionLabel}
           </Button>
         )}
 
@@ -165,7 +181,7 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
           <ul className="flex flex-col gap-3">
             {tool.proposals.map((proposal) => {
               const stale = staleKeys.has(proposal.key)
-              const liveValue = readCharacterField(character, proposal.key)
+              const liveValue = adapter.read(entity, proposal.key)
 
               return (
               <li
@@ -277,7 +293,7 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
               icon="check"
               disabled={applicableCount === 0}
               onClick={() => {
-                const { patch, appliedCount } = buildPatch(character, tool.proposals)
+                const { patch, appliedCount } = buildPatch(entity, tool.proposals, adapter)
                 onApply(patch, appliedCount)
                 tool.reset()
               }}

@@ -34,12 +34,15 @@ const PATHS = {
     'M12 21a9 9 0 1 1 9-9c0 2-1.5 3-3 3h-1.5a1.5 1.5 0 0 0-1 2.6c.4.4.5 1 .2 1.5-.3.6-1 .9-1.7.9ZM7.5 12.5h.01M10 8.5h.01M14.5 8h.01',
   chevronRight: 'M9 5l7 7-7 7',
   chevronDown: 'M5 9l7 7 7-7',
+  chevronUp: 'M5 15l7-7 7 7',
   chevronLeft: 'M15 5l-7 7 7 7',
   book: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM19 19v2H6',
   grid: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
   list: 'M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01',
   star: 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z',
   undo: 'M4 9h11a5 5 0 0 1 0 10h-5M4 9l4-4M4 9l4 4',
+  map: 'M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5zM9 4v13M15 6.5v13',
+  share: 'M7 12a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM22 6a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM22 18a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM7 11l10-4M7 13l10 4',
 } as const
 
 export type IconName = keyof typeof PATHS

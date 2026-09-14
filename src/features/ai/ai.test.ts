@@ -1,13 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useWorkspaceStore } from '@/stores/workspace-store'
-import { mockProvider } from './providers/mock-provider'
+import { mockExpandCharacter, mockProviderStatus } from './providers/mock-provider'
+import { buildPatch, isProposalStale, type ReviewableProposal } from './types'
 import {
-  buildPatch,
-  isProposalStale,
+  characterAdapter,
   readCharacterField,
   writeCharacterField,
-  type ReviewableProposal,
-} from './types'
+} from './adapters/character-adapter'
 import { buildConsistencyChecklist, type Character } from '@/types/character'
 
 function makeTestCharacter(overrides: Partial<Character> = {}): Character {
@@ -67,7 +66,7 @@ describe('buildPatch', () => {
       proposal({ key: 'goals', decision: 'accepted', edited: 'Wants out' }),
       proposal({ key: 'weaknesses', decision: 'rejected', edited: 'Should not appear' }),
       proposal({ key: 'powers', decision: 'pending', edited: 'Should not appear either' }),
-    ])
+    ], characterAdapter)
 
     expect(patch.patch).toEqual({ goals: 'Wants out' })
     expect(patch.appliedCount).toBe(1)
@@ -77,7 +76,7 @@ describe('buildPatch', () => {
     const character = makeTestCharacter()
     const patch = buildPatch(character, [
       proposal({ decision: 'accepted', proposed: 'Original', edited: 'What I actually want' }),
-    ])
+    ], characterAdapter)
     expect(patch.patch.goals).toBe('What I actually want')
   })
 
@@ -86,7 +85,7 @@ describe('buildPatch', () => {
     const patch = buildPatch(character, [
       proposal({ key: 'appearance.hair', decision: 'accepted', edited: 'Auburn' }),
       proposal({ key: 'appearance.eyes', decision: 'accepted', edited: 'Brown' }),
-    ])
+    ], characterAdapter)
 
     expect(patch.patch.appearance?.hair).toBe('Auburn')
     expect(patch.patch.appearance?.eyes).toBe('Brown')
@@ -97,7 +96,7 @@ describe('buildPatch', () => {
     const character = makeTestCharacter({ goals: 'Something I typed while reviewing' })
     const result = buildPatch(character, [
       proposal({ key: 'goals', decision: 'accepted', current: '', edited: 'The suggestion' }),
-    ])
+    ], characterAdapter)
 
     // ...so it must not overwrite what the user has since written.
     expect(result.patch).toEqual({})
@@ -116,7 +115,7 @@ describe('buildPatch', () => {
         current: 'Something I typed while reviewing',
         edited: 'The suggestion',
       }),
-    ])
+    ], characterAdapter)
 
     expect(result.patch.goals).toBe('The suggestion')
     expect(result.skipped).toEqual([])
@@ -127,7 +126,7 @@ describe('buildPatch', () => {
     const result = buildPatch(character, [
       proposal({ key: 'goals', decision: 'accepted', current: '', edited: 'Stale one' }),
       proposal({ key: 'weaknesses', decision: 'accepted', current: '', edited: 'Fresh one' }),
-    ])
+    ], characterAdapter)
 
     expect(result.patch).toEqual({ weaknesses: 'Fresh one' })
     expect(result.skipped).toEqual(['goals'])
@@ -136,7 +135,7 @@ describe('buildPatch', () => {
 
   it('skips an accepted proposal the user emptied out', () => {
     const character = makeTestCharacter()
-    const patch = buildPatch(character, [proposal({ decision: 'accepted', edited: '   ' })])
+    const patch = buildPatch(character, [proposal({ decision: 'accepted', edited: '   ' })], characterAdapter)
     expect(patch.patch).toEqual({})
     expect(patch.appliedCount).toBe(0)
   })
@@ -152,21 +151,21 @@ describe('isProposalStale', () => {
 
   it('is false while the field still holds what the proposal saw', () => {
     const character = makeTestCharacter({ goals: '' })
-    expect(isProposalStale(character, { ...base, current: '' })).toBe(false)
+    expect(isProposalStale(character, { ...base, current: '' }, characterAdapter)).toBe(false)
   })
 
   it('is true once the field has been edited underneath', () => {
     const character = makeTestCharacter({ goals: 'Edited in another tab' })
-    expect(isProposalStale(character, { ...base, current: '' })).toBe(true)
+    expect(isProposalStale(character, { ...base, current: '' }, characterAdapter)).toBe(true)
   })
 
   it('handles the array-backed personality field', () => {
     const character = makeTestCharacter({ personality: ['stubborn'] })
     expect(
-      isProposalStale(character, { ...base, key: 'personality', current: '' }),
+      isProposalStale(character, { ...base, key: 'personality', current: '' }, characterAdapter),
     ).toBe(true)
     expect(
-      isProposalStale(character, { ...base, key: 'personality', current: 'stubborn' }),
+      isProposalStale(character, { ...base, key: 'personality', current: 'stubborn' }, characterAdapter),
     ).toBe(false)
   })
 })
@@ -175,14 +174,14 @@ describe('mock provider', () => {
   beforeEach(() => useWorkspaceStore.setState({ characters: {} }))
 
   it('reports itself as unconfigured, so the UI shows mock mode', () => {
-    expect(mockProvider.status.configured).toBe(false)
-    expect(mockProvider.status.estimatedCostCad).toBe(0)
+    expect(mockProviderStatus.configured).toBe(false)
+    expect(mockProviderStatus.estimatedCostCad).toBe(0)
   })
 
   it('only claims the tools it can actually perform', () => {
     // Overstating capability is the failure mode this guards against.
-    expect(mockProvider.status.supports).not.toContain('image.generate')
-    expect(mockProvider.status.supports).toContain('character.expand')
+    expect(mockProviderStatus.supports).not.toContain('image.generate')
+    expect(mockProviderStatus.supports).toContain('character.expand')
   })
 
   it('never proposes a change to a field the user has written', async () => {
@@ -191,8 +190,8 @@ describe('mock provider', () => {
       dialogueStyle: 'Also written',
     })
 
-    const proposals = await mockProvider.expandCharacter(character, { signal: liveSignal() })
-    const keys = proposals.map((proposal) => proposal.key)
+    const proposals = await mockExpandCharacter(character, { signal: liveSignal() })
+    const keys = proposals.map((proposal: { key: string }) => proposal.key)
 
     expect(keys).not.toContain('goals')
     expect(keys).not.toContain('dialogueStyle')
@@ -204,24 +203,24 @@ describe('mock provider', () => {
 
   it('is deterministic for the same character', async () => {
     const character = makeTestCharacter()
-    const first = await mockProvider.expandCharacter(character, { signal: liveSignal() })
-    const second = await mockProvider.expandCharacter(character, { signal: liveSignal() })
-    expect(first.map((p) => p.proposed)).toEqual(second.map((p) => p.proposed))
+    const first = await mockExpandCharacter(character, { signal: liveSignal() })
+    const second = await mockExpandCharacter(character, { signal: liveSignal() })
+    expect(first.map((p: { proposed: string }) => p.proposed)).toEqual(second.map((p: { proposed: string }) => p.proposed))
   })
 
   it('differs between characters', async () => {
     const mira = makeTestCharacter({ name: 'Mira Halloway', role: 'Protagonist' })
     const elias = { ...mira, name: 'Elias Warde', role: 'Antagonist' }
 
-    const a = await mockProvider.expandCharacter(mira, { signal: liveSignal() })
-    const b = await mockProvider.expandCharacter(elias, { signal: liveSignal() })
-    expect(a.map((p) => p.proposed)).not.toEqual(b.map((p) => p.proposed))
+    const a = await mockExpandCharacter(mira, { signal: liveSignal() })
+    const b = await mockExpandCharacter(elias, { signal: liveSignal() })
+    expect(a.map((p: { proposed: string }) => p.proposed)).not.toEqual(b.map((p: { proposed: string }) => p.proposed))
   })
 
   it('rejects with AbortError when cancelled', async () => {
     const character = makeTestCharacter()
     const controller = new AbortController()
-    const pending = mockProvider.expandCharacter(character, { signal: controller.signal })
+    const pending = mockExpandCharacter(character, { signal: controller.signal })
     controller.abort()
 
     await expect(pending).rejects.toThrow(/cancelled/i)
@@ -249,7 +248,7 @@ describe('mock provider', () => {
       dialogueStyle: 'x',
     })
 
-    const proposals = await mockProvider.expandCharacter(character, { signal: liveSignal() })
+    const proposals = await mockExpandCharacter(character, { signal: liveSignal() })
     expect(proposals).toEqual([])
   })
 })
