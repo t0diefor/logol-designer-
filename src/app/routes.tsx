@@ -29,6 +29,10 @@ export const WorldPage = lazy(() =>
   import('@/pages/WorldPage').then((m) => ({ default: m.WorldPage })),
 )
 
+export const StoryPage = lazy(() =>
+  import('@/pages/StoryPage').then((m) => ({ default: m.StoryPage })),
+)
+
 export const SettingsPage = lazy(() =>
   import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 )

@@ -14,17 +14,6 @@ import { NAV_ITEMS } from '@/app/navigation'
  * discovering which controls are real.
  */
 const PLANNED: Record<string, { phase: number; items: string[] }> = {
-  '/story': {
-    phase: 4,
-    items: [
-      'Episode outlines and scene breakdowns',
-      'Beat sheets with goal, conflict and outcome',
-      'Dialogue and narration editors',
-      'Word count, search and tagging',
-      'AI rewriting: concision, tone, pacing, alternatives',
-      'Every rewrite shown as a reviewable proposal',
-    ],
-  },
   '/assets': {
     phase: 5,
     items: [

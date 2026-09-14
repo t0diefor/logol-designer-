@@ -4,6 +4,7 @@ import type { Asset } from '@/types/asset'
 import type { Character } from '@/types/character'
 import type { Comic } from '@/types/comic'
 import type { Project } from '@/types/project'
+import type { Scene, Story } from '@/types/story'
 import type {
   Faction,
   Location,
@@ -199,4 +200,62 @@ export function useWorldCounts(projectId: string | null) {
     }),
     [locations, factions, systems, events, objects],
   )
+}
+
+/* ------------------------------------------------------------------ */
+/* Story                                                               */
+/* ------------------------------------------------------------------ */
+
+/** Stories in one project, most recently edited first. */
+export function useStoriesForProject(projectId: string | null): Story[] {
+  const stories = useWorkspaceStore((state) => state.stories)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(stories)
+      .filter((story) => story.projectId === projectId)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }, [stories, projectId])
+}
+
+/** Scenes of one story, in script order. */
+export function useScenesForStory(storyId: string | null): Scene[] {
+  const scenes = useWorkspaceStore((state) => state.scenes)
+  return useMemo(() => {
+    if (!storyId) return []
+    return Object.values(scenes)
+      .filter((scene) => scene.storyId === storyId)
+      .sort((a, b) => a.index - b.index)
+  }, [scenes, storyId])
+}
+
+/**
+ * Every word of prose in a scene, concatenated.
+ *
+ * Used for word counts and the deterministic repetition analysis. Field
+ * labels are deliberately excluded -- counting them would inflate the number
+ * and flag structural words as echoes.
+ */
+export function sceneProse(scene: Scene): string {
+  return [
+    scene.summary,
+    scene.goal,
+    scene.conflict,
+    scene.outcome,
+    ...scene.beats.map((beat) => `${beat.summary} ${beat.change}`),
+    ...scene.lines.map((line) => line.text),
+  ]
+    .filter((part) => part.trim().length > 0)
+    .join('\n\n')
+}
+
+/** Word count across a whole story, including its scenes. */
+export function useStoryWordCount(storyId: string | null): number {
+  const story = useWorkspaceStore((state) => (storyId ? state.stories[storyId] : undefined))
+  const scenes = useScenesForStory(storyId)
+
+  return useMemo(() => {
+    const count = (text: string) => text.split(/\s+/).filter(Boolean).length
+    const storyWords = story ? count(story.premise) + count(story.outline) : 0
+    return scenes.reduce((total, scene) => total + count(sceneProse(scene)), storyWords)
+  }, [story, scenes])
 }

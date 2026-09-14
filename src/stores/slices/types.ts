@@ -4,6 +4,7 @@ import type { Character } from '@/types/character'
 import type { Comic } from '@/types/comic'
 import type { Project, ProjectDraft } from '@/types/project'
 import type { Faction, Location, WorldEvent, WorldObject, WorldSystem } from '@/types/world'
+import type { Beat, DialogueLine, Scene, Story } from '@/types/story'
 
 /**
  * The workspace store, assembled from slices.
@@ -85,6 +86,30 @@ export interface WorldSlice {
   deleteWorldObject: (id: string) => void
 }
 
+export interface StorySlice {
+  stories: Record<string, Story>
+  scenes: Record<string, Scene>
+
+  createStory: (projectId: string, title: string) => Story
+  updateStory: (id: string, changes: Partial<Story>) => void
+  /** Cascades to the story's scenes, which cannot exist without it. */
+  deleteStory: (id: string) => void
+
+  createScene: (storyId: string, title: string) => Scene
+  updateScene: (id: string, changes: Partial<Scene>) => void
+  deleteScene: (id: string) => void
+  moveScene: (id: string, direction: 'up' | 'down') => void
+
+  addBeat: (sceneId: string, summary: string) => void
+  updateBeat: (sceneId: string, beatId: string, changes: Partial<Beat>) => void
+  removeBeat: (sceneId: string, beatId: string) => void
+
+  addLine: (sceneId: string, kind: DialogueLine['kind'], characterId?: string | null) => void
+  updateLine: (sceneId: string, lineId: string, changes: Partial<DialogueLine>) => void
+  removeLine: (sceneId: string, lineId: string) => void
+  moveLine: (sceneId: string, lineId: string, direction: 'up' | 'down') => void
+}
+
 export interface SelectionSlice {
   currentProjectId: string | null
   currentComicId: string | null
@@ -107,6 +132,8 @@ export interface WorkspaceData {
   systems: Record<string, WorldSystem>
   worldEvents: Record<string, WorldEvent>
   worldObjects: Record<string, WorldObject>
+  stories: Record<string, Story>
+  scenes: Record<string, Scene>
 }
 
 /**
@@ -126,12 +153,15 @@ export const EMPTY_WORKSPACE: WorkspaceData = {
   systems: {},
   worldEvents: {},
   worldObjects: {},
+  stories: {},
+  scenes: {},
 }
 
 export type WorkspaceState = ProjectSlice &
   CharacterSlice &
   AssetSlice &
   WorldSlice &
+  StorySlice &
   SelectionSlice
 
 /** Slice creator shape, with the persist middleware's mutator declared. */

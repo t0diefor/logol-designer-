@@ -28,6 +28,9 @@ export interface TextFieldProps {
   rows?: number
   /** Makes the field span both columns of a FieldGrid. */
   wide?: boolean
+  placeholder2?: never
+  /** A control shown on the label row, e.g. a per-field Rewrite button. */
+  action?: ReactNode
 }
 
 export function TextField({
@@ -39,9 +42,15 @@ export function TextField({
   multiline = false,
   rows = 4,
   wide = false,
+  action,
 }: TextFieldProps) {
   return (
-    <Field label={label} hint={hint} className={wide ? 'sm:col-span-2' : undefined}>
+    <Field
+      label={label}
+      hint={hint}
+      action={action}
+      className={wide ? 'sm:col-span-2' : undefined}
+    >
       {({ id, describedBy }) =>
         multiline ? (
           <Textarea

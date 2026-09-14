@@ -34,7 +34,7 @@ page.on('console', (msg) => {
     // Webfonts are blocked in some sandboxes; every theme declares a full
     // fallback stack, so a font that fails to load is not an app error.
     if (text.includes('fonts.googleapis') || text.includes('fonts.gstatic')) return
-    if (text.includes('ERR_CONNECTION_RESET') || text.includes('ERR_BLOCKED')) return
+    if (/ERR_CONNECTION_RESET|ERR_BLOCKED|ERR_CERT_AUTHORITY_INVALID/.test(text)) return
     problems.push(`[console.${type}] ${text}`)
   }
 })

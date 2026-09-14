@@ -6,6 +6,7 @@ import { createProjectSlice } from './slices/project-slice'
 import { createCharacterSlice } from './slices/character-slice'
 import { createAssetSlice } from './slices/asset-slice'
 import { createWorldSlice } from './slices/world-slice'
+import { createStorySlice } from './slices/story-slice'
 import { createSelectionSlice } from './slices/selection-slice'
 import type { WorkspaceState } from './slices/types'
 
@@ -42,11 +43,12 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       ...createCharacterSlice(...args),
       ...createAssetSlice(...args),
       ...createWorldSlice(...args),
+      ...createStorySlice(...args),
       ...createSelectionSlice(...args),
     }),
     {
       name: 'panelforge.workspace',
-      version: 3,
+      version: 4,
       storage: createJSONStorage(() => idbStorage),
       partialize: (state) => ({
         projects: state.projects,
@@ -58,6 +60,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         systems: state.systems,
         worldEvents: state.worldEvents,
         worldObjects: state.worldObjects,
+        stories: state.stories,
+        scenes: state.scenes,
         currentProjectId: state.currentProjectId,
         currentComicId: state.currentComicId,
       }),
@@ -67,6 +71,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
        * v1 (phase 1): projects and comics only.
        * v2 (phase 2): + characters, assets.
        * v3 (phase 3): + locations, factions, systems, worldEvents, worldObjects.
+       * v4 (phase 4): + stories, scenes.
        */
       migrate: (persisted, fromVersion) => {
         const state = (persisted ?? {}) as Partial<WorkspaceState>
@@ -81,6 +86,10 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           filled.systems = filled.systems ?? {}
           filled.worldEvents = filled.worldEvents ?? {}
           filled.worldObjects = filled.worldObjects ?? {}
+        }
+        if (fromVersion < 4) {
+          filled.stories = filled.stories ?? {}
+          filled.scenes = filled.scenes ?? {}
         }
         return filled
       },
