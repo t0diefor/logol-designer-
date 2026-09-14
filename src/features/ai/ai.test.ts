@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useWorkspaceStore } from '@/stores/workspace-store'
 import { mockProvider } from './providers/mock-provider'
-import { buildPatch, readCharacterField, writeCharacterField, type ReviewableProposal } from './types'
+import {
+  buildPatch,
+  isProposalStale,
+  readCharacterField,
+  writeCharacterField,
+  type ReviewableProposal,
+} from './types'
 import { buildConsistencyChecklist, type Character } from '@/types/character'
 
 function makeTestCharacter(overrides: Partial<Character> = {}): Character {
@@ -63,7 +69,8 @@ describe('buildPatch', () => {
       proposal({ key: 'powers', decision: 'pending', edited: 'Should not appear either' }),
     ])
 
-    expect(patch).toEqual({ goals: 'Wants out' })
+    expect(patch.patch).toEqual({ goals: 'Wants out' })
+    expect(patch.appliedCount).toBe(1)
   })
 
   it('uses the user’s edited text, not the original suggestion', () => {
@@ -71,7 +78,7 @@ describe('buildPatch', () => {
     const patch = buildPatch(character, [
       proposal({ decision: 'accepted', proposed: 'Original', edited: 'What I actually want' }),
     ])
-    expect(patch.goals).toBe('What I actually want')
+    expect(patch.patch.goals).toBe('What I actually want')
   })
 
   it('merges several accepted appearance fields instead of keeping only the last', () => {
@@ -81,14 +88,86 @@ describe('buildPatch', () => {
       proposal({ key: 'appearance.eyes', decision: 'accepted', edited: 'Brown' }),
     ])
 
-    expect(patch.appearance?.hair).toBe('Auburn')
-    expect(patch.appearance?.eyes).toBe('Brown')
+    expect(patch.patch.appearance?.hair).toBe('Auburn')
+    expect(patch.patch.appearance?.eyes).toBe('Brown')
+  })
+
+  it('refuses a proposal whose field changed after it was generated', () => {
+    // The proposal was made against an empty field...
+    const character = makeTestCharacter({ goals: 'Something I typed while reviewing' })
+    const result = buildPatch(character, [
+      proposal({ key: 'goals', decision: 'accepted', current: '', edited: 'The suggestion' }),
+    ])
+
+    // ...so it must not overwrite what the user has since written.
+    expect(result.patch).toEqual({})
+    expect(result.skipped).toEqual(['goals'])
+    expect(result.appliedCount).toBe(0)
+  })
+
+  it('applies a stale proposal once it has been re-based onto the live value', () => {
+    const character = makeTestCharacter({ goals: 'Something I typed while reviewing' })
+    const result = buildPatch(character, [
+      proposal({
+        key: 'goals',
+        decision: 'accepted',
+        // A rebase rewrites `current` to the live value, which is the explicit
+        // "yes, replace what I wrote" action.
+        current: 'Something I typed while reviewing',
+        edited: 'The suggestion',
+      }),
+    ])
+
+    expect(result.patch.goals).toBe('The suggestion')
+    expect(result.skipped).toEqual([])
+  })
+
+  it('applies fresh proposals even when a sibling has gone stale', () => {
+    const character = makeTestCharacter({ goals: 'Typed since' })
+    const result = buildPatch(character, [
+      proposal({ key: 'goals', decision: 'accepted', current: '', edited: 'Stale one' }),
+      proposal({ key: 'weaknesses', decision: 'accepted', current: '', edited: 'Fresh one' }),
+    ])
+
+    expect(result.patch).toEqual({ weaknesses: 'Fresh one' })
+    expect(result.skipped).toEqual(['goals'])
+    expect(result.appliedCount).toBe(1)
   })
 
   it('skips an accepted proposal the user emptied out', () => {
     const character = makeTestCharacter()
     const patch = buildPatch(character, [proposal({ decision: 'accepted', edited: '   ' })])
-    expect(patch).toEqual({})
+    expect(patch.patch).toEqual({})
+    expect(patch.appliedCount).toBe(0)
+  })
+})
+
+describe('isProposalStale', () => {
+  const base = {
+    key: 'goals' as const,
+    label: 'Goals',
+    proposed: 'p',
+    rationale: 'r',
+  }
+
+  it('is false while the field still holds what the proposal saw', () => {
+    const character = makeTestCharacter({ goals: '' })
+    expect(isProposalStale(character, { ...base, current: '' })).toBe(false)
+  })
+
+  it('is true once the field has been edited underneath', () => {
+    const character = makeTestCharacter({ goals: 'Edited in another tab' })
+    expect(isProposalStale(character, { ...base, current: '' })).toBe(true)
+  })
+
+  it('handles the array-backed personality field', () => {
+    const character = makeTestCharacter({ personality: ['stubborn'] })
+    expect(
+      isProposalStale(character, { ...base, key: 'personality', current: '' }),
+    ).toBe(true)
+    expect(
+      isProposalStale(character, { ...base, key: 'personality', current: 'stubborn' }),
+    ).toBe(false)
   })
 })
 

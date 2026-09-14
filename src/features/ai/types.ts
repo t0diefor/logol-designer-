@@ -147,15 +147,54 @@ export function writeCharacterField(
   return { [key]: value } as Partial<Character>
 }
 
-/** Merges every accepted proposal into one patch. */
+/**
+ * Whether the underlying field has changed since the proposal was made.
+ *
+ * A proposal records the value it was generated against. If the live value no
+ * longer matches, the user edited that field in another tab while the review
+ * panel was open, and applying the suggestion would destroy an edit they made
+ * *after* seeing the suggestion -- exactly the silent overwrite this whole
+ * feature exists to prevent.
+ *
+ * Deliberately a pure function of the live character rather than something
+ * tracked in state: staleness is then derived during render and cannot go out
+ * of date, and there is no effect writing state back on every store change.
+ */
+export function isProposalStale(character: Character, proposal: FieldProposal): boolean {
+  return readCharacterField(character, proposal.key) !== proposal.current
+}
+
+export interface PatchResult {
+  /** The changes to write. Never includes a stale proposal. */
+  patch: Partial<Character>
+  /** Keys that were accepted but skipped because the field changed underneath. */
+  skipped: CharacterFieldKey[]
+  /** How many proposals will actually be written. */
+  appliedCount: number
+}
+
+/**
+ * Merges every accepted proposal into one patch, refusing stale ones.
+ *
+ * The UI blocks a stale proposal from being applied before it reaches here;
+ * this second check is defence in depth, so no future caller can bypass it.
+ */
 export function buildPatch(
   character: Character,
   proposals: ReviewableProposal[],
-): Partial<Character> {
+): PatchResult {
   let patch: Partial<Character> = {}
+  const skipped: CharacterFieldKey[] = []
+  let appliedCount = 0
 
   for (const proposal of proposals) {
     if (proposal.decision !== 'accepted') continue
+
+    if (isProposalStale(character, proposal)) {
+      skipped.push(proposal.key)
+      continue
+    }
+
     const value = proposal.edited.trim()
     if (!value) continue
 
@@ -163,9 +202,10 @@ export function buildPatch(
     // accepting several appearance fields at once does not lose all but the last.
     const merged = { ...character, ...patch } as Character
     patch = { ...patch, ...writeCharacterField(merged, proposal.key, value) }
+    appliedCount += 1
   }
 
-  return patch
+  return { patch, skipped, appliedCount }
 }
 
 export interface AIRequestContext {

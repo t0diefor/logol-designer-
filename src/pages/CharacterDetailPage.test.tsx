@@ -118,6 +118,60 @@ describe('CharacterDetailPage', () => {
     expect(apply).toBeDisabled()
   })
 
+  it('holds back a suggestion whose field was edited during review', async () => {
+    const character = seedCharacter()
+    renderDetail(character.id)
+
+    await userEvent.click(screen.getByRole('tab', { name: /Assist/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Suggest content' }))
+    await screen.findByText(/suggestions\./i)
+    await userEvent.click(screen.getByRole('button', { name: 'Accept all' }))
+
+    const before = screen.getByRole('button', { name: /Apply \d+ accepted/ }).textContent
+    const acceptedBefore = Number(/\d+/.exec(before ?? '0')?.[0] ?? 0)
+    expect(acceptedBefore).toBeGreaterThan(0)
+
+    // Simulate the user editing Goals in another tab while the panel is open.
+    useWorkspaceStore.getState().updateCharacter(character.id, {
+      goals: 'Something I wrote myself, after seeing the suggestion',
+    })
+
+    // The panel must notice immediately and hold that one back.
+    expect(await screen.findByText(/Changed while you were reviewing/)).toBeInTheDocument()
+    expect(screen.getByText(/held back because you edited the field/)).toBeInTheDocument()
+
+    const after = screen.getByRole('button', { name: /Apply \d+ accepted/ }).textContent
+    expect(Number(/\d+/.exec(after ?? '0')?.[0] ?? 0)).toBe(acceptedBefore - 1)
+
+    await userEvent.click(screen.getByRole('button', { name: /Apply \d+ accepted/ }))
+
+    // The user's own writing survives.
+    expect(useWorkspaceStore.getState().characters[character.id]!.goals).toBe(
+      'Something I wrote myself, after seeing the suggestion',
+    )
+  })
+
+  it('lets the user deliberately override their own edit', async () => {
+    const character = seedCharacter()
+    renderDetail(character.id)
+
+    await userEvent.click(screen.getByRole('tab', { name: /Assist/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Suggest content' }))
+    await screen.findByText(/suggestions\./i)
+
+    useWorkspaceStore.getState().updateCharacter(character.id, { goals: 'My own text' })
+    await screen.findByText(/Changed while you were reviewing/)
+
+    // The panel shows what would be lost before offering to replace it.
+    expect(screen.getByText('My own text')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /Replace it with the suggestion/ }))
+    await userEvent.click(screen.getByRole('button', { name: /Apply \d+ accepted/ }))
+
+    const goals = useWorkspaceStore.getState().characters[character.id]!.goals
+    expect(goals).not.toBe('My own text')
+    expect(goals.length).toBeGreaterThan(0)
+  })
+
   it('applies accepted suggestions and saves a restore point first', async () => {
     const character = seedCharacter()
     renderDetail(character.id)

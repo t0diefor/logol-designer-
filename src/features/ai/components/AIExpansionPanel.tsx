@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Textarea } from '@/components/ui/Input'
 import { getProvider } from '../provider-registry'
-import { buildPatch } from '../types'
+import { buildPatch, isProposalStale, readCharacterField } from '../types'
 import type { useCharacterExpansion } from '../use-character-expansion'
 import type { Character } from '@/types/character'
 
@@ -30,6 +30,19 @@ export interface AIExpansionPanelProps {
 export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelProps) {
   const provider = getProvider()
   const { status } = provider
+
+  /*
+   * Staleness is derived from the live character on every render rather than
+   * stored. If the user edits a field in another tab while this panel is open,
+   * the warning appears immediately and cannot drift out of date.
+   */
+  const staleKeys = new Set(
+    tool.proposals.filter((proposal) => isProposalStale(character, proposal)).map((p) => p.key),
+  )
+
+  const applicableCount = tool.proposals.filter(
+    (proposal) => proposal.decision === 'accepted' && !staleKeys.has(proposal.key),
+  ).length
 
   return (
     <section
@@ -132,6 +145,12 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
               {tool.pendingCount > 0
                 ? `${tool.pendingCount} still need a decision.`
                 : 'All reviewed.'}
+              {staleKeys.size > 0 ? (
+                <span className="text-warning">
+                  {' '}
+                  {staleKeys.size} held back because you edited the field.
+                </span>
+              ) : null}
             </p>
             <div className="flex gap-2">
               <Button size="sm" onClick={() => tool.decideAll('accepted')}>
@@ -144,20 +163,27 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
           </div>
 
           <ul className="flex flex-col gap-3">
-            {tool.proposals.map((proposal) => (
+            {tool.proposals.map((proposal) => {
+              const stale = staleKeys.has(proposal.key)
+              const liveValue = readCharacterField(character, proposal.key)
+
+              return (
               <li
                 key={proposal.key}
                 className={cn(
                   'rounded-md border p-4 border-[length:var(--pf-border-width)]',
-                  proposal.decision === 'accepted' && 'border-success/50 bg-bg-inset',
-                  proposal.decision === 'rejected' && 'border-line bg-bg-inset opacity-55',
-                  proposal.decision === 'pending' && 'border-line bg-bg-inset',
+                  stale && 'border-warning/60 bg-bg-inset',
+                  !stale && proposal.decision === 'accepted' && 'border-success/50 bg-bg-inset',
+                  !stale && proposal.decision === 'rejected' && 'border-line bg-bg-inset opacity-55',
+                  !stale && proposal.decision === 'pending' && 'border-line bg-bg-inset',
                 )}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-sm font-medium text-ink">{proposal.label}</span>
                   <span className="flex items-center gap-1.5">
-                    {proposal.decision === 'accepted' ? (
+                    {stale ? (
+                      <Badge tone="warning">Changed while you were reviewing</Badge>
+                    ) : proposal.decision === 'accepted' ? (
                       <Badge tone="success">Will be applied</Badge>
                     ) : proposal.decision === 'rejected' ? (
                       <Badge>Rejected</Badge>
@@ -169,16 +195,44 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
 
                 <p className="mt-1.5 text-xs leading-5 text-ink-faint">{proposal.rationale}</p>
 
-                {proposal.current ? (
+                {stale ? (
+                  <div className="mt-3 rounded-md border border-warning/50 bg-surface p-3">
+                    <p className="text-xs leading-5 text-ink">
+                      You changed this field after the suggestion was made, so it will{' '}
+                      <strong>not</strong> be applied. Here is what is there now:
+                    </p>
+                    <p className="mt-2 border-l-2 border-warning pl-3 text-xs text-ink-muted">
+                      {liveValue || <span className="italic text-ink-faint">(now empty)</span>}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        icon="close"
+                        onClick={() => tool.decide(proposal.key, 'rejected')}
+                      >
+                        Keep what I wrote
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => tool.rebase(proposal.key, liveValue)}
+                      >
+                        Replace it with the suggestion
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {!stale && proposal.current ? (
                   <p className="mt-3 rounded-sm border-l-2 border-line pl-3 text-xs text-ink-muted">
                     <span className="mb-0.5 block text-ink-faint">Currently</span>
                     {proposal.current}
                   </p>
-                ) : (
+                ) : !stale ? (
                   <p className="mt-3 text-xs italic text-ink-faint">
                     This field is currently empty, so nothing would be overwritten.
                   </p>
-                )}
+                ) : null}
 
                 <label className="mt-3 block">
                   <span className="mb-1.5 block text-xs text-ink-faint">
@@ -192,40 +246,43 @@ export function AIExpansionPanel({ character, tool, onApply }: AIExpansionPanelP
                   />
                 </label>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    variant={proposal.decision === 'accepted' ? 'primary' : 'secondary'}
-                    icon="check"
-                    onClick={() => tool.decide(proposal.key, 'accepted')}
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    icon="close"
-                    onClick={() => tool.decide(proposal.key, 'rejected')}
-                  >
-                    Reject
-                  </Button>
-                </div>
+                {!stale ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={proposal.decision === 'accepted' ? 'primary' : 'secondary'}
+                      icon="check"
+                      onClick={() => tool.decide(proposal.key, 'accepted')}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon="close"
+                      onClick={() => tool.decide(proposal.key, 'rejected')}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                ) : null}
               </li>
-            ))}
+              )
+            })}
           </ul>
 
           <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-line pt-4">
             <Button
               variant="primary"
               icon="check"
-              disabled={tool.acceptedCount === 0}
+              disabled={applicableCount === 0}
               onClick={() => {
-                const patch = buildPatch(character, tool.proposals)
-                onApply(patch, tool.acceptedCount)
+                const { patch, appliedCount } = buildPatch(character, tool.proposals)
+                onApply(patch, appliedCount)
                 tool.reset()
               }}
             >
-              Apply {tool.acceptedCount} accepted
+              Apply {applicableCount} accepted
             </Button>
             <p className="text-xs text-ink-muted">
               A restore point is saved first, so this can be undone from the History tab.

@@ -94,6 +94,21 @@ export function useCharacterExpansion(character: Character | null) {
     setProposals((current) => current.map((proposal) => ({ ...proposal, decision })))
   }, [])
 
+  /**
+   * Re-bases a stale proposal onto the field's current value.
+   *
+   * This is the explicit "yes, replace what I just wrote" action. It is the
+   * only way a stale proposal can ever be applied, and it takes a deliberate
+   * click after the panel has shown the user exactly what would be lost.
+   */
+  const rebase = useCallback((key: string, liveValue: string) => {
+    setProposals((current) =>
+      current.map((proposal) =>
+        proposal.key === key ? { ...proposal, current: liveValue, decision: 'accepted' } : proposal,
+      ),
+    )
+  }, [])
+
   const acceptedCount = proposals.filter((proposal) => proposal.decision === 'accepted').length
   const pendingCount = proposals.filter((proposal) => proposal.decision === 'pending').length
 
@@ -109,5 +124,6 @@ export function useCharacterExpansion(character: Character | null) {
     decide,
     edit,
     decideAll,
+    rebase,
   }
 }
