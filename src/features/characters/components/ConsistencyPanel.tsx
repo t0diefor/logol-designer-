@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/components/ui/Icon'
+import { SectionLabel } from '@/components/ui/SectionLabel'
 import { buildConsistencyChecklist, type Character } from '@/types/character'
 
 /**
@@ -30,9 +31,9 @@ export function ConsistencyPanel({
   return (
     <section className={cn('flex flex-col gap-3', className)} aria-labelledby="pf-consistency">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 id="pf-consistency" className="text-sm font-medium text-ink">
+        <SectionLabel id="pf-consistency">
           Consistency checklist
-        </h3>
+        </SectionLabel>
         <span className="text-xs text-ink-muted tabular-nums">
           {done} of {total}
         </span>

@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand'
-import type { Asset } from '@/types/asset'
+import type { Asset, Collection } from '@/types/asset'
 import type { Character } from '@/types/character'
 import type { Comic } from '@/types/comic'
 import type { Project, ProjectDraft } from '@/types/project'
@@ -47,12 +47,20 @@ export interface CharacterSlice {
 
 export interface AssetSlice {
   assets: Record<string, Asset>
+  collections: Record<string, Collection>
 
   /** Registers asset metadata. The bytes are written to IndexedDB separately. */
   addAsset: (asset: Asset) => void
   updateAsset: (id: string, changes: Partial<Asset>) => void
   /** Removes the record, detaches it everywhere it is used, and deletes the blob. */
   deleteAsset: (id: string) => void
+  toggleAssetFavorite: (id: string) => void
+
+  createCollection: (projectId: string, name: string) => Collection
+  updateCollection: (id: string, changes: Partial<Collection>) => void
+  /** Removes the collection and unfiles its assets. The assets survive. */
+  deleteCollection: (id: string) => void
+  setAssetCollections: (assetId: string, collectionIds: string[]) => void
 }
 
 export interface WorldSlice {
@@ -134,6 +142,7 @@ export interface WorkspaceData {
   worldObjects: Record<string, WorldObject>
   stories: Record<string, Story>
   scenes: Record<string, Scene>
+  collections: Record<string, Collection>
 }
 
 /**
@@ -155,6 +164,7 @@ export const EMPTY_WORKSPACE: WorkspaceData = {
   worldObjects: {},
   stories: {},
   scenes: {},
+  collections: {},
 }
 
 export type WorkspaceState = ProjectSlice &

@@ -48,7 +48,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     }),
     {
       name: 'panelforge.workspace',
-      version: 4,
+      version: 5,
       storage: createJSONStorage(() => idbStorage),
       partialize: (state) => ({
         projects: state.projects,
@@ -62,6 +62,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         worldObjects: state.worldObjects,
         stories: state.stories,
         scenes: state.scenes,
+        collections: state.collections,
         currentProjectId: state.currentProjectId,
         currentComicId: state.currentComicId,
       }),
@@ -72,6 +73,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
        * v2 (phase 2): + characters, assets.
        * v3 (phase 3): + locations, factions, systems, worldEvents, worldObjects.
        * v4 (phase 4): + stories, scenes.
+       * v5 (phase 5): + collections.
        */
       migrate: (persisted, fromVersion) => {
         const state = (persisted ?? {}) as Partial<WorkspaceState>
@@ -90,6 +92,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         if (fromVersion < 4) {
           filled.stories = filled.stories ?? {}
           filled.scenes = filled.scenes ?? {}
+        }
+        if (fromVersion < 5) {
+          filled.collections = filled.collections ?? {}
         }
         return filled
       },

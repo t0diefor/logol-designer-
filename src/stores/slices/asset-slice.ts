@@ -1,9 +1,11 @@
-import { nowIso } from '@/lib/id'
+import { newId, nowIso } from '@/lib/id'
 import { assetDelete } from '@/lib/idb'
+import type { Collection } from '@/types/asset'
 import type { AssetSlice, WorkspaceSliceCreator } from './types'
 
 export const createAssetSlice: WorkspaceSliceCreator<AssetSlice> = (set) => ({
   assets: {},
+  collections: {},
 
   addAsset: (asset) => set((state) => ({ assets: { ...state.assets, [asset.id]: asset } })),
 
@@ -15,6 +17,80 @@ export const createAssetSlice: WorkspaceSliceCreator<AssetSlice> = (set) => ({
         assets: {
           ...state.assets,
           [id]: { ...existing, ...changes, id, updatedAt: nowIso() },
+        },
+      }
+    }),
+
+  toggleAssetFavorite: (id) =>
+    set((state) => {
+      const existing = state.assets[id]
+      if (!existing) return state
+      return {
+        assets: {
+          ...state.assets,
+          [id]: { ...existing, favorite: !existing.favorite, updatedAt: nowIso() },
+        },
+      }
+    }),
+
+  createCollection: (projectId, name) => {
+    const timestamp = nowIso()
+    const collection: Collection = {
+      id: newId(),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      ownerId: null,
+      projectId,
+      name,
+      description: '',
+    }
+    set((state) => ({ collections: { ...state.collections, [collection.id]: collection } }))
+    return collection
+  },
+
+  updateCollection: (id, changes) =>
+    set((state) => {
+      const existing = state.collections[id]
+      if (!existing) return state
+      return {
+        collections: {
+          ...state.collections,
+          [id]: { ...existing, ...changes, id, updatedAt: nowIso() },
+        },
+      }
+    }),
+
+  deleteCollection: (id) =>
+    set((state) => {
+      const collections = { ...state.collections }
+      delete collections[id]
+
+      /*
+       * Unfile, never cascade. A collection is a way of grouping assets, not
+       * a container that owns them -- deleting the folder must not delete the
+       * pictures, and an asset filed nowhere is a perfectly normal state.
+       */
+      const assets = { ...state.assets }
+      for (const [assetId, asset] of Object.entries(assets)) {
+        if (!asset.collectionIds.includes(id)) continue
+        assets[assetId] = {
+          ...asset,
+          collectionIds: asset.collectionIds.filter((candidate) => candidate !== id),
+          updatedAt: nowIso(),
+        }
+      }
+
+      return { collections, assets }
+    }),
+
+  setAssetCollections: (assetId, collectionIds) =>
+    set((state) => {
+      const existing = state.assets[assetId]
+      if (!existing) return state
+      return {
+        assets: {
+          ...state.assets,
+          [assetId]: { ...existing, collectionIds, updatedAt: nowIso() },
         },
       }
     }),

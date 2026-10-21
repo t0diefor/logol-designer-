@@ -33,6 +33,10 @@ export const StoryPage = lazy(() =>
   import('@/pages/StoryPage').then((m) => ({ default: m.StoryPage })),
 )
 
+export const AssetsPage = lazy(() =>
+  import('@/pages/AssetsPage').then((m) => ({ default: m.AssetsPage })),
+)
+
 export const SettingsPage = lazy(() =>
   import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 )

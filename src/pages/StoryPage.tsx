@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { IconButton } from '@/components/ui/IconButton'
 import { Select } from '@/components/ui/Input'
+import { SectionLabel } from '@/components/ui/SectionLabel'
 import { Tabs, type TabDefinition } from '@/components/ui/Tabs'
 import { RepetitionPanel } from '@/features/stories/components/RepetitionPanel'
 import { SceneEditor } from '@/features/stories/components/SceneEditor'
@@ -213,7 +214,7 @@ export function StoryPage() {
 
             <aside className="lg:sticky lg:top-20 lg:self-start">
               <Card>
-                <h3 className="text-sm font-medium text-ink">Story totals</h3>
+                <SectionLabel>Story totals</SectionLabel>
                 <dl className="mt-3 grid grid-cols-2 gap-y-2 text-sm">
                   <dt className="text-ink-muted">Words</dt>
                   <dd className="text-ink tabular-nums">{wordCount}</dd>

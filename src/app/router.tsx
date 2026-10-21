@@ -3,6 +3,7 @@ import { AppLayout } from '@/layouts/AppLayout'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { ErrorPage } from '@/pages/ErrorPage'
 import {
+  AssetsPage,
   CharacterDetailPage,
   CharactersPage,
   LazyRoute,
@@ -84,8 +85,17 @@ export const router = createRouter([
         ),
       },
 
-      // Phase 5-7 placeholders.
-      ...['assets', 'composer', 'export'].map((path) => ({
+      {
+        path: 'assets',
+        element: (
+          <LazyRoute>
+            <AssetsPage />
+          </LazyRoute>
+        ),
+      },
+
+      // Phase 6-7 placeholders.
+      ...['composer', 'export'].map((path) => ({
         path,
         element: (
           <LazyRoute>

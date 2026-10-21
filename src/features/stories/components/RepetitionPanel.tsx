@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { Icon } from '@/components/ui/Icon'
+import { SectionLabel } from '@/components/ui/SectionLabel'
 import { analyseText } from '@/lib/text-analysis'
 
 /**
@@ -30,7 +31,7 @@ export function RepetitionPanel({ text }: { text: string }) {
     <div className="flex flex-col gap-5">
       <div>
         <div className="mb-2 flex items-center gap-2">
-          <h3 className="text-sm font-medium text-ink">Scene analysis</h3>
+          <SectionLabel>Scene analysis</SectionLabel>
           <Badge>Computed, not generated</Badge>
         </div>
         <p className="text-xs leading-5 text-ink-muted">

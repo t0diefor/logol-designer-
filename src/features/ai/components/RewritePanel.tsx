@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Textarea } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
+import { SectionLabel } from '@/components/ui/SectionLabel'
 import { cn } from '@/lib/cn'
 import { getProviderStatus } from '../provider-registry'
 import { REWRITE_TOOLS, runRewrite, type RewriteSuggestion, type RewriteToolId } from '../rewrite'
@@ -116,7 +117,7 @@ export function RewritePanel({ open, onClose, fieldLabel, text, onApply }: Rewri
       </div>
 
       <div className="mt-5">
-        <h3 className="mb-2 text-sm font-medium text-ink">Choose a tool</h3>
+        <SectionLabel className="mb-2">Choose a tool</SectionLabel>
         <ul className="grid gap-2 sm:grid-cols-2">
           {REWRITE_TOOLS.map((tool) => {
             const disabled = tool.needsModel
@@ -188,7 +189,7 @@ export function RewritePanel({ open, onClose, fieldLabel, text, onApply }: Rewri
       {state === 'review' && suggestion ? (
         <div className="mt-6 border-t border-line pt-5">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-sm font-medium text-ink">Proposed change</h3>
+            <SectionLabel>Proposed change</SectionLabel>
             <Badge>{suggestion.label}</Badge>
           </div>
 

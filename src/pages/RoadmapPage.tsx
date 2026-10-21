@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
 import { Badge } from '@/components/ui/Badge'
+import { SectionLabel } from '@/components/ui/SectionLabel'
 import { NAV_ITEMS } from '@/app/navigation'
 
 /**
@@ -14,16 +15,6 @@ import { NAV_ITEMS } from '@/app/navigation'
  * discovering which controls are real.
  */
 const PLANNED: Record<string, { phase: number; items: string[] }> = {
-  '/assets': {
-    phase: 5,
-    items: [
-      'Grid and list views with search and filters',
-      'Tags, collections and favourites',
-      'Upload handling with local file metadata',
-      'Usage tracking across pages and characters',
-      'Placeholder assets before anything is uploaded',
-    ],
-  },
   '/composer': {
     phase: 6,
     items: [
@@ -76,7 +67,7 @@ export function RoadmapPage() {
 
         {plan ? (
           <>
-            <h3 className="mt-6 text-sm font-medium text-ink">Planned for this area</h3>
+            <SectionLabel className="mt-6">Planned for this area</SectionLabel>
             <ul className="mt-3 flex flex-col gap-2">
               {plan.items.map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-sm text-ink-muted">

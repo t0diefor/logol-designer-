@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { useWorkspaceStore } from './workspace-store'
-import type { Asset } from '@/types/asset'
+import { EMPTY_WORKSPACE } from './slices/types'
+import { countAllAssetUsage, findAssetUsage, type AssetUsage } from '@/features/assets/usage'
+import type { Asset, Collection } from '@/types/asset'
 import type { Character } from '@/types/character'
 import type { Comic } from '@/types/comic'
 import type { Project } from '@/types/project'
@@ -258,4 +260,77 @@ export function useStoryWordCount(storyId: string | null): number {
     const storyWords = story ? count(story.premise) + count(story.outline) : 0
     return scenes.reduce((total, scene) => total + count(sceneProse(scene)), storyWords)
   }, [story, scenes])
+}
+
+/* ------------------------------------------------------------------ */
+/* Assets                                                              */
+/* ------------------------------------------------------------------ */
+
+/** Collections in one project, alphabetical. */
+export function useCollectionsForProject(projectId: string | null): Collection[] {
+  const collections = useWorkspaceStore((state) => state.collections)
+  return useMemo(() => {
+    if (!projectId) return []
+    return Object.values(collections)
+      .filter((collection) => collection.projectId === projectId)
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [collections, projectId])
+}
+
+/**
+ * How many times each asset is used, computed in one pass over the workspace.
+ *
+ * Subscribes to every collection that can hold an asset reference, so a badge
+ * updates the moment a reference is added or removed anywhere.
+ */
+export function useAssetUsageCounts(): Map<string, number> {
+  const projects = useWorkspaceStore((state) => state.projects)
+  const comics = useWorkspaceStore((state) => state.comics)
+  const characters = useWorkspaceStore((state) => state.characters)
+  const locations = useWorkspaceStore((state) => state.locations)
+  const worldObjects = useWorkspaceStore((state) => state.worldObjects)
+
+  return useMemo(
+    () =>
+      countAllAssetUsage({
+        ...EMPTY_WORKSPACE,
+        projects,
+        comics,
+        characters,
+        locations,
+        worldObjects,
+      }),
+    [projects, comics, characters, locations, worldObjects],
+  )
+}
+
+/** Every use of one asset, for the detail panel and the delete confirmation. */
+export function useAssetUsage(assetId: string | null): AssetUsage[] {
+  const projects = useWorkspaceStore((state) => state.projects)
+  const comics = useWorkspaceStore((state) => state.comics)
+  const characters = useWorkspaceStore((state) => state.characters)
+  const locations = useWorkspaceStore((state) => state.locations)
+  const worldObjects = useWorkspaceStore((state) => state.worldObjects)
+
+  return useMemo(() => {
+    if (!assetId) return []
+    return findAssetUsage(
+      { ...EMPTY_WORKSPACE, projects, comics, characters, locations, worldObjects },
+      assetId,
+    )
+  }, [assetId, projects, comics, characters, locations, worldObjects])
+}
+
+/** Tags used by assets in a project, with counts, most used first. */
+export function useAssetTagCounts(projectId: string | null): { tag: string; count: number }[] {
+  const assets = useAssetsForProject(projectId)
+  return useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const asset of assets) {
+      for (const tag of asset.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1)
+    }
+    return [...counts.entries()]
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
+  }, [assets])
 }

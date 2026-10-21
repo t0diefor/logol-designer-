@@ -87,6 +87,7 @@ export const createProjectSlice: WorkspaceSliceCreator<ProjectSlice> = (set, get
       const worldEvents = belongsElsewhere(state.worldEvents)
       const worldObjects = belongsElsewhere(state.worldObjects)
       const stories = belongsElsewhere(state.stories)
+      const collections = belongsElsewhere(state.collections)
 
       // Scenes hang off a story, not off the project, so they are filtered by
       // which stories survive rather than by their own projectId.
@@ -110,6 +111,7 @@ export const createProjectSlice: WorkspaceSliceCreator<ProjectSlice> = (set, get
         worldObjects,
         stories,
         scenes,
+        collections,
         currentProjectId: state.currentProjectId === id ? null : state.currentProjectId,
         currentComicId: droppedCurrentComic ? null : state.currentComicId,
       }
