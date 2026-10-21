@@ -139,7 +139,52 @@ export const createAssetSlice: WorkspaceSliceCreator<AssetSlice> = (set) => ({
         projects[projectId] = { ...project, coverAssetId: null, updatedAt: nowIso() }
       }
 
-      return { assets, characters, projects }
+      const comics = { ...state.comics }
+      for (const [comicId, comic] of Object.entries(comics)) {
+        if (comic.coverAsset?.assetId !== id) continue
+        comics[comicId] = { ...comic, coverAsset: null, updatedAt: nowIso() }
+      }
+
+      const locations = { ...state.locations }
+      for (const [locationId, location] of Object.entries(locations)) {
+        if (!location.references.some((reference) => reference.assetId === id)) continue
+        locations[locationId] = {
+          ...location,
+          references: location.references.filter((reference) => reference.assetId !== id),
+          updatedAt: nowIso(),
+        }
+      }
+
+      const worldObjects = { ...state.worldObjects }
+      for (const [objectId, object] of Object.entries(worldObjects)) {
+        if (!object.references.some((reference) => reference.assetId === id)) continue
+        worldObjects[objectId] = {
+          ...object,
+          references: object.references.filter((reference) => reference.assetId !== id),
+          updatedAt: nowIso(),
+        }
+      }
+
+      // Panel placements, added in phase 6. Without this a deleted asset
+      // leaves a placement pointing at nothing, which draws as a marked gap
+      // on the page that the user has no control to remove.
+      const pages = { ...state.pages }
+      for (const [pageId, page] of Object.entries(pages)) {
+        const affected = page.panels.some((panel) =>
+          panel.placements.some((placement) => placement.refId === id),
+        )
+        if (!affected) continue
+        pages[pageId] = {
+          ...page,
+          panels: page.panels.map((panel) => ({
+            ...panel,
+            placements: panel.placements.filter((placement) => placement.refId !== id),
+          })),
+          updatedAt: nowIso(),
+        }
+      }
+
+      return { assets, characters, projects, comics, locations, worldObjects, pages }
     })
 
     /*

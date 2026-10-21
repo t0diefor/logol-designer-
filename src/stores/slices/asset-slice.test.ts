@@ -138,6 +138,42 @@ describe('asset slice', () => {
       expect(store().projects[project.id]!.coverAssetId).toBeNull()
     })
 
+    it('removes a panel placement that pointed at it', () => {
+      const project = store().createProject({ title: 'P', logline: '', genre: '' })
+      const comic = store().createComic(project.id, 'C')
+      const episode = store().createEpisode(comic.id, 'E')
+      const page = store().createPage(episode.id)
+      const panel = store().addPanel(page.id, { x: 0, y: 0, width: 100, height: 100 })!
+
+      const asset = makeAsset(project.id)
+      store().addAsset(asset)
+      store().addPlacement(page.id, panel.id, {
+        kind: 'asset', refId: asset.id, rect: { x: 0, y: 0, width: 50, height: 50 },
+        rotation: 0, flipX: false, opacity: 1, variant: '',
+      })
+      expect(store().pages[page.id]!.panels[0]!.placements).toHaveLength(1)
+
+      store().deleteAsset(asset.id)
+
+      // The confirmation dialog promises the asset is removed from every
+      // place it is used. A placement left behind draws as a marked gap the
+      // user cannot clear.
+      const live = store().pages[page.id]!.panels.find((p) => p.id === panel.id)!
+      expect(live.placements).toEqual([])
+    })
+
+    it('clears a location reference that pointed at it', () => {
+      const project = store().createProject({ title: 'P', logline: '', genre: '' })
+      const asset = makeAsset(project.id)
+      store().addAsset(asset)
+      const location = store().createLocation(project.id, 'The Lamp Works')
+      store().updateLocation(location.id, { references: [{ assetId: asset.id, label: '' }] })
+      expect(store().locations[location.id]!.references).toHaveLength(1)
+
+      store().deleteAsset(asset.id)
+      expect(store().locations[location.id]!.references).toEqual([])
+    })
+
     it('leaves characters that never referenced it untouched', () => {
       const asset = makeAsset('p1')
       store().addAsset(asset)

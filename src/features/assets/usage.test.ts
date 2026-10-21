@@ -43,6 +43,52 @@ function workspace(overrides: Partial<WorkspaceData>): WorkspaceData {
   return { ...EMPTY_WORKSPACE, ...overrides }
 }
 
+/** A page holding one panel with `placements`, in the shape the store stores. */
+function pageWith(placements: { refId: string | null; kind?: 'asset' | 'character' }[]) {
+  return {
+    p1: {
+      id: 'pg1',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      ownerId: null,
+      episodeId: 'e1',
+      index: 3,
+      size: { width: 477, height: 738, label: 'US Comic' },
+      margin: 24,
+      gutter: 12,
+      background: null,
+      templateId: null,
+      notes: [],
+      panels: [
+        {
+          id: 'pan1',
+          rect: { x: 0, y: 0, width: 100, height: 100 },
+          z: 0,
+          radius: 0,
+          borderWidth: 2,
+          fill: null,
+          description: '',
+          shot: '',
+          sceneId: null,
+          notes: [],
+          balloons: [],
+          placements: placements.map((placement, index) => ({
+            id: `pl${index}`,
+            kind: placement.kind ?? ('asset' as const),
+            refId: placement.refId,
+            rect: { x: 0, y: 0, width: 50, height: 50 },
+            rotation: 0,
+            flipX: false,
+            opacity: 1,
+            variant: '',
+            z: index,
+          })),
+        },
+      ],
+    },
+  }
+}
+
 describe('findAssetUsage', () => {
   it('finds nothing for an unused asset', () => {
     expect(findAssetUsage(workspace({}), ASSET)).toEqual([])
@@ -133,6 +179,32 @@ describe('findAssetUsage', () => {
     })
 
     expect(findAssetUsage(data, ASSET)).toHaveLength(3)
+  })
+})
+
+describe('panel placements, the reference site phase 6 added', () => {
+  it('reports an asset placed in a panel', () => {
+    const uses = findAssetUsage(workspace({ pages: pageWith([{ refId: ASSET }]) }), ASSET)
+
+    // Reported, or the delete confirmation says "used nowhere" about an
+    // asset that is on a page, and the placement breaks silently.
+    expect(uses).toHaveLength(1)
+    expect(uses[0]!.kind).toBe('panel-placement')
+    expect(uses[0]!.label).toBe('Page 3, panel 1')
+  })
+
+  it('counts one use per panel, not per placement', () => {
+    const data = workspace({ pages: pageWith([{ refId: ASSET }, { refId: ASSET }]) })
+
+    expect(findAssetUsage(data, ASSET)).toHaveLength(1)
+    expect(countAllAssetUsage(data).get(ASSET)).toBe(1)
+  })
+
+  it('ignores a character placement that happens to share the id', () => {
+    const data = workspace({ pages: pageWith([{ refId: ASSET, kind: 'character' }]) })
+
+    expect(findAssetUsage(data, ASSET)).toEqual([])
+    expect(countAllAssetUsage(data).get(ASSET)).toBeUndefined()
   })
 })
 

@@ -289,6 +289,7 @@ export function useAssetUsageCounts(): Map<string, number> {
   const characters = useWorkspaceStore((state) => state.characters)
   const locations = useWorkspaceStore((state) => state.locations)
   const worldObjects = useWorkspaceStore((state) => state.worldObjects)
+  const pages = useWorkspaceStore((state) => state.pages)
 
   return useMemo(
     () =>
@@ -299,8 +300,9 @@ export function useAssetUsageCounts(): Map<string, number> {
         characters,
         locations,
         worldObjects,
+        pages,
       }),
-    [projects, comics, characters, locations, worldObjects],
+    [projects, comics, characters, locations, worldObjects, pages],
   )
 }
 
@@ -311,14 +313,15 @@ export function useAssetUsage(assetId: string | null): AssetUsage[] {
   const characters = useWorkspaceStore((state) => state.characters)
   const locations = useWorkspaceStore((state) => state.locations)
   const worldObjects = useWorkspaceStore((state) => state.worldObjects)
+  const pages = useWorkspaceStore((state) => state.pages)
 
   return useMemo(() => {
     if (!assetId) return []
     return findAssetUsage(
-      { ...EMPTY_WORKSPACE, projects, comics, characters, locations, worldObjects },
+      { ...EMPTY_WORKSPACE, projects, comics, characters, locations, worldObjects, pages },
       assetId,
     )
-  }, [assetId, projects, comics, characters, locations, worldObjects])
+  }, [assetId, projects, comics, characters, locations, worldObjects, pages])
 }
 
 /** Tags used by assets in a project, with counts, most used first. */

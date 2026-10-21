@@ -21,6 +21,7 @@ export type UsageKind =
   | 'character-expression'
   | 'location-reference'
   | 'object-reference'
+  | 'panel-placement'
 
 export interface AssetUsage {
   kind: UsageKind
@@ -40,6 +41,7 @@ const KIND_LABEL: Record<UsageKind, string> = {
   'character-expression': 'Expression reference',
   'location-reference': 'Location reference',
   'object-reference': 'Object reference',
+  'panel-placement': 'Placed in a panel',
 }
 
 export function usageKindLabel(kind: UsageKind): string {
@@ -113,6 +115,24 @@ export function findAssetUsage(data: WorkspaceData, assetId: string): AssetUsage
     uses.push({ kind: 'object-reference', ownerId: object.id, label: object.name, href: '/world' })
   }
 
+  // The reference site phase 6 added. The note at the top of this file asked
+  // for it; one use is reported per panel, not per placement, because that is
+  // what a reader of "used in 3 places" is counting.
+  for (const page of Object.values(data.pages)) {
+    for (const [index, panel] of page.panels.entries()) {
+      const used = panel.placements.some(
+        (placement) => placement.kind === 'asset' && placement.refId === assetId,
+      )
+      if (!used) continue
+      uses.push({
+        kind: 'panel-placement',
+        ownerId: panel.id,
+        label: `Page ${page.index}, panel ${index + 1}`,
+        href: '/composer',
+      })
+    }
+  }
+
   return uses
 }
 
@@ -146,6 +166,20 @@ export function countAllAssetUsage(data: WorkspaceData): Map<string, number> {
 
   for (const object of Object.values(data.worldObjects)) {
     for (const reference of object.references) bump(reference.assetId)
+  }
+
+  for (const page of Object.values(data.pages)) {
+    for (const panel of page.panels) {
+      // Counted once per panel, matching findAssetUsage: the same picture
+      // placed twice in one panel is one place it is used.
+      const seen = new Set<string>()
+      for (const placement of panel.placements) {
+        if (placement.kind !== 'asset' || !placement.refId) continue
+        if (seen.has(placement.refId)) continue
+        seen.add(placement.refId)
+        bump(placement.refId)
+      }
+    }
   }
 
   return counts
