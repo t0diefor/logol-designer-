@@ -37,6 +37,10 @@ export const AssetsPage = lazy(() =>
   import('@/pages/AssetsPage').then((m) => ({ default: m.AssetsPage })),
 )
 
+export const ComposerPage = lazy(() =>
+  import('@/pages/ComposerPage').then((m) => ({ default: m.ComposerPage })),
+)
+
 export const SettingsPage = lazy(() =>
   import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 )

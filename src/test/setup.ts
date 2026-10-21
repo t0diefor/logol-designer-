@@ -29,3 +29,24 @@ if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.sho
     this.dispatchEvent(new Event('close'))
   }
 }
+
+/**
+ * jsdom does not implement pointer capture.
+ *
+ * `setPointerCapture` and `releasePointerCapture` are absent, so a drag
+ * handler that claims the pointer -- which every correct pointer drag does --
+ * throws on the first `pointerdown` in a test. Again an environment gap, not
+ * an app one.
+ *
+ * The shims are no-ops: they do NOT retarget subsequent events the way a real
+ * browser does. A test therefore has to dispatch the rest of a gesture at the
+ * element it actually wants to hit, and cannot use these to assert anything
+ * about capture behaviour. Real retargeting is covered by the Playwright pass.
+ */
+if (typeof Element !== 'undefined' && !Element.prototype.setPointerCapture) {
+  Element.prototype.setPointerCapture = function setPointerCapture() {}
+  Element.prototype.releasePointerCapture = function releasePointerCapture() {}
+  Element.prototype.hasPointerCapture = function hasPointerCapture() {
+    return false
+  }
+}

@@ -15,17 +15,6 @@ import { NAV_ITEMS } from '@/app/navigation'
  * discovering which controls are real.
  */
 const PLANNED: Record<string, { phase: number; items: string[] }> = {
-  '/composer': {
-    phase: 6,
-    items: [
-      'Multi-page editing with thumbnails',
-      'Page templates and custom panel grids',
-      'Drag, resize, snapping and alignment guides',
-      'Layer ordering, duplication and deletion',
-      'Speech bubbles, thought bubbles, captions and SFX',
-      'Keyboard shortcuts for undo, redo, duplicate and zoom',
-    ],
-  },
   '/export': {
     phase: 7,
     items: [

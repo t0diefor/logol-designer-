@@ -7,6 +7,7 @@ import { createCharacterSlice } from './slices/character-slice'
 import { createAssetSlice } from './slices/asset-slice'
 import { createWorldSlice } from './slices/world-slice'
 import { createStorySlice } from './slices/story-slice'
+import { createPageSlice } from './slices/page-slice'
 import { createSelectionSlice } from './slices/selection-slice'
 import type { WorkspaceState } from './slices/types'
 
@@ -44,11 +45,12 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       ...createAssetSlice(...args),
       ...createWorldSlice(...args),
       ...createStorySlice(...args),
+      ...createPageSlice(...args),
       ...createSelectionSlice(...args),
     }),
     {
       name: 'panelforge.workspace',
-      version: 5,
+      version: 6,
       storage: createJSONStorage(() => idbStorage),
       partialize: (state) => ({
         projects: state.projects,
@@ -63,6 +65,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         stories: state.stories,
         scenes: state.scenes,
         collections: state.collections,
+        episodes: state.episodes,
+        pages: state.pages,
         currentProjectId: state.currentProjectId,
         currentComicId: state.currentComicId,
       }),
@@ -74,6 +78,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
        * v3 (phase 3): + locations, factions, systems, worldEvents, worldObjects.
        * v4 (phase 4): + stories, scenes.
        * v5 (phase 5): + collections.
+       * v6 (phase 6): + episodes, pages.
        */
       migrate: (persisted, fromVersion) => {
         const state = (persisted ?? {}) as Partial<WorkspaceState>
@@ -95,6 +100,10 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         }
         if (fromVersion < 5) {
           filled.collections = filled.collections ?? {}
+        }
+        if (fromVersion < 6) {
+          filled.episodes = filled.episodes ?? {}
+          filled.pages = filled.pages ?? {}
         }
         return filled
       },

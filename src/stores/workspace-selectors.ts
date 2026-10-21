@@ -4,7 +4,7 @@ import { EMPTY_WORKSPACE } from './slices/types'
 import { countAllAssetUsage, findAssetUsage, type AssetUsage } from '@/features/assets/usage'
 import type { Asset, Collection } from '@/types/asset'
 import type { Character } from '@/types/character'
-import type { Comic } from '@/types/comic'
+import type { Comic, Episode, Page } from '@/types/comic'
 import type { Project } from '@/types/project'
 import type { Scene, Story } from '@/types/story'
 import type {
@@ -333,4 +333,36 @@ export function useAssetTagCounts(projectId: string | null): { tag: string; coun
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
   }, [assets])
+}
+
+/* ------------------------------------------------------------------ */
+/* Pages                                                               */
+/* ------------------------------------------------------------------ */
+
+/** Episodes of one comic, in reading order. */
+export function useEpisodesForComic(comicId: string | null): Episode[] {
+  const episodes = useWorkspaceStore((state) => state.episodes)
+  return useMemo(() => {
+    if (!comicId) return []
+    return Object.values(episodes)
+      .filter((episode) => episode.comicId === comicId)
+      .sort((a, b) => a.number - b.number)
+  }, [episodes, comicId])
+}
+
+/** Pages of one episode, in printed order. */
+export function usePagesForEpisode(episodeId: string | null): Page[] {
+  const pages = useWorkspaceStore((state) => state.pages)
+  return useMemo(() => {
+    if (!episodeId) return []
+    return Object.values(pages)
+      .filter((page) => page.episodeId === episodeId)
+      .sort((a, b) => a.index - b.index)
+  }, [pages, episodeId])
+}
+
+/** One page by id, or null. */
+export function usePage(pageId: string | null): Page | null {
+  const pages = useWorkspaceStore((state) => state.pages)
+  return pageId ? (pages[pageId] ?? null) : null
 }

@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "verify:ui": "node scripts/verify-ui.mjs",
+    "verify:composer": "node scripts/verify-composer.mjs",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
     "build:static": "tsc -b && vite build --mode static --base=./ --outDir dist-static"
   },

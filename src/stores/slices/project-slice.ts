@@ -96,6 +96,19 @@ export const createProjectSlice: WorkspaceSliceCreator<ProjectSlice> = (set, get
         Object.entries(state.scenes).filter(([, scene]) => survivingStoryIds.has(scene.storyId)),
       )
 
+      // Episodes hang off a comic and pages off an episode, so each is
+      // filtered by what survived above it rather than by its own projectId.
+      const survivingComicIds = new Set(Object.keys(comics))
+      const episodes = Object.fromEntries(
+        Object.entries(state.episodes).filter(([, episode]) =>
+          survivingComicIds.has(episode.comicId),
+        ),
+      )
+      const survivingEpisodeIds = new Set(Object.keys(episodes))
+      const pages = Object.fromEntries(
+        Object.entries(state.pages).filter(([, page]) => survivingEpisodeIds.has(page.episodeId)),
+      )
+
       const droppedCurrentComic =
         state.currentComicId !== null && !(state.currentComicId in comics)
 
@@ -112,6 +125,8 @@ export const createProjectSlice: WorkspaceSliceCreator<ProjectSlice> = (set, get
         stories,
         scenes,
         collections,
+        episodes,
+        pages,
         currentProjectId: state.currentProjectId === id ? null : state.currentProjectId,
         currentComicId: droppedCurrentComic ? null : state.currentComicId,
       }
@@ -176,8 +191,19 @@ export const createProjectSlice: WorkspaceSliceCreator<ProjectSlice> = (set, get
     set((state) => {
       const comics = { ...state.comics }
       delete comics[id]
+
+      const episodes = Object.fromEntries(
+        Object.entries(state.episodes).filter(([, episode]) => episode.comicId !== id),
+      )
+      const survivingEpisodeIds = new Set(Object.keys(episodes))
+      const pages = Object.fromEntries(
+        Object.entries(state.pages).filter(([, page]) => survivingEpisodeIds.has(page.episodeId)),
+      )
+
       return {
         comics,
+        episodes,
+        pages,
         currentComicId: state.currentComicId === id ? null : state.currentComicId,
       }
     }),

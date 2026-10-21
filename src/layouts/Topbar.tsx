@@ -29,20 +29,27 @@ export function Topbar({ project, comic, onToggleSidebar, onOpenMobileNav }: Top
         'border-b-[length:var(--pf-border-width)] bg-bg/85 px-3 backdrop-blur-md sm:px-4',
       )}
     >
-      <IconButton
-        icon="menu"
-        label="Open navigation"
-        size="sm"
-        className="md:hidden"
-        onClick={onOpenMobileNav}
-      />
-      <IconButton
-        icon="menu"
-        label="Toggle sidebar"
-        size="sm"
-        className="hidden md:inline-flex"
-        onClick={onToggleSidebar}
-      />
+      {/* The responsive display class goes on a wrapper, not on the button.
+          IconButton sets `inline-flex` itself, and with no tailwind-merge in
+          the project both classes survive at equal specificity, so whichever
+          Tailwind emits last wins -- which left both buttons visible on a
+          phone, one of them toggling a sidebar that is not there. */}
+      <span className="md:hidden">
+        <IconButton
+          icon="menu"
+          label="Open navigation"
+          size="sm"
+          onClick={onOpenMobileNav}
+        />
+      </span>
+      <span className="hidden md:block">
+        <IconButton
+          icon="menu"
+          label="Toggle sidebar"
+          size="sm"
+          onClick={onToggleSidebar}
+        />
+      </span>
 
       <Link to="/" className="flex shrink-0 items-center gap-2 rounded-md">
         <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-fg">

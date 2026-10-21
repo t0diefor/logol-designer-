@@ -4,6 +4,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { ErrorPage } from '@/pages/ErrorPage'
 import {
   AssetsPage,
+  ComposerPage,
   CharacterDetailPage,
   CharactersPage,
   LazyRoute,
@@ -94,8 +95,17 @@ export const router = createRouter([
         ),
       },
 
-      // Phase 6-7 placeholders.
-      ...['composer', 'export'].map((path) => ({
+      {
+        path: 'composer',
+        element: (
+          <LazyRoute>
+            <ComposerPage />
+          </LazyRoute>
+        ),
+      },
+
+      // Phase 7 placeholder.
+      ...['export'].map((path) => ({
         path,
         element: (
           <LazyRoute>

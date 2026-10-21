@@ -1,7 +1,7 @@
 import type { StateCreator } from 'zustand'
 import type { Asset, Collection } from '@/types/asset'
 import type { Character } from '@/types/character'
-import type { Comic } from '@/types/comic'
+import type { Balloon, Comic, Episode, Page, Panel, Placement, PageSize } from '@/types/comic'
 import type { Project, ProjectDraft } from '@/types/project'
 import type { Faction, Location, WorldEvent, WorldObject, WorldSystem } from '@/types/world'
 import type { Beat, DialogueLine, Scene, Story } from '@/types/story'
@@ -118,6 +118,55 @@ export interface StorySlice {
   moveLine: (sceneId: string, lineId: string, direction: 'up' | 'down') => void
 }
 
+export interface PageSlice {
+  episodes: Record<string, Episode>
+  pages: Record<string, Page>
+
+  createEpisode: (comicId: string, title: string) => Episode
+  updateEpisode: (id: string, changes: Partial<Episode>) => void
+  deleteEpisode: (id: string) => void
+
+  createPage: (episodeId: string, size?: PageSize) => Page
+  updatePage: (id: string, changes: Partial<Page>) => void
+  /** Replaces a page wholesale. Used by undo and redo. */
+  replacePage: (page: Page) => void
+  deletePage: (id: string) => void
+  movePage: (id: string, direction: 'up' | 'down') => void
+  duplicatePage: (id: string) => Page | null
+
+  addPanel: (pageId: string, rect: Panel['rect']) => Panel | null
+  updatePanel: (pageId: string, panelId: string, changes: Partial<Panel>) => void
+  deletePanel: (pageId: string, panelId: string) => void
+  duplicatePanel: (pageId: string, panelId: string) => Panel | null
+  reorderPanel: (
+    pageId: string,
+    panelId: string,
+    direction: 'forward' | 'backward' | 'front' | 'back',
+  ) => void
+
+  addBalloon: (pageId: string, panelId: string, balloon: Omit<Balloon, 'id' | 'z'>) => Balloon | null
+  updateBalloon: (
+    pageId: string,
+    panelId: string,
+    balloonId: string,
+    changes: Partial<Balloon>,
+  ) => void
+  deleteBalloon: (pageId: string, panelId: string, balloonId: string) => void
+
+  addPlacement: (
+    pageId: string,
+    panelId: string,
+    placement: Omit<Placement, 'id' | 'z'>,
+  ) => Placement | null
+  updatePlacement: (
+    pageId: string,
+    panelId: string,
+    placementId: string,
+    changes: Partial<Placement>,
+  ) => void
+  deletePlacement: (pageId: string, panelId: string, placementId: string) => void
+}
+
 export interface SelectionSlice {
   currentProjectId: string | null
   currentComicId: string | null
@@ -143,6 +192,8 @@ export interface WorkspaceData {
   stories: Record<string, Story>
   scenes: Record<string, Scene>
   collections: Record<string, Collection>
+  episodes: Record<string, Episode>
+  pages: Record<string, Page>
 }
 
 /**
@@ -165,6 +216,8 @@ export const EMPTY_WORKSPACE: WorkspaceData = {
   stories: {},
   scenes: {},
   collections: {},
+  episodes: {},
+  pages: {},
 }
 
 export type WorkspaceState = ProjectSlice &
@@ -172,6 +225,7 @@ export type WorkspaceState = ProjectSlice &
   AssetSlice &
   WorldSlice &
   StorySlice &
+  PageSlice &
   SelectionSlice
 
 /** Slice creator shape, with the persist middleware's mutator declared. */

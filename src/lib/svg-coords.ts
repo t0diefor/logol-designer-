@@ -22,10 +22,15 @@ export interface Point {
 
 /** Converts a client (screen) point into the SVG's user-space coordinates. */
 export function clientToSvg(svg: SVGSVGElement, clientX: number, clientY: number): Point {
-  const matrix = svg.getScreenCTM()
+  // Two separate gaps to cover, and they fail differently. A detached or
+  // `display:none` SVG *returns null*; jsdom does not implement the method at
+  // all, so calling it throws rather than returning anything. Checking only
+  // for null handled the first and crashed on the second.
+  const matrix = typeof svg.getScreenCTM === 'function' ? svg.getScreenCTM() : null
 
-  // Absent in a detached or display:none SVG, and in jsdom. Returning the raw
-  // point keeps callers total rather than forcing a null check at every site.
+  // Returning the raw point keeps callers total rather than forcing a null
+  // check at every site. Under an identity-ish mapping it is also the right
+  // answer; where it is not, the Playwright pass measures the real matrix.
   if (!matrix) return { x: clientX, y: clientY }
 
   const point = svg.createSVGPoint()
