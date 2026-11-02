@@ -14,7 +14,15 @@ warm colours exist in Issue #1 and both are rationed:
 
 Everything about Evan is cool and low-contrast: white-blond, black-and-white
 cap, grey hoodie. He disappears into Ashford. Liam does not. That contrast is
-doing character work, so protect it in the colour pass.
+doing character work, so protect it in the colour pass. **[CANON 2026-11-02 —
+this is now the agreed way the two leads are told apart. See
+`characters/README.md`.]**
+
+**Both leads stay platinum.** The difference is carried by silhouette (cap and
+hood vs. bare head and varsity shoulders), by hair *value* (Evan flat and
+near-white, Liam with volume and darker roots) and by palette. An inker who
+renders both heads the same way has broken it, whatever the colourist does
+afterwards.
 
 **Light.** Overcast daylight is flat and shadowless — avoid dramatic lighting
 in the school scenes entirely, so that the night pages hit harder. All the
@@ -33,9 +41,11 @@ modelling in this issue lives on pages 1 and 14–16.
 - The issue is roughly 24 hours. One costume change, and it is a story beat.
 - Rain: pages 1–3 yes, 4–13 no (wet ground, no falling rain), 14–16 yes.
 - Evan wears the cap backwards in every panel he appears in.
-- **The breath rule.** If the Cold proposal is accepted, this becomes the most
-  important continuity item in the series: the attacker's breath never fogs,
-  on any page, ever. One mistake kills the device.
+- **The breath rule [CANON 2026-11-02].** This is now the most important
+  continuity item in the series. The attacker's breath never fogs, on any page,
+  ever. Roz's does. Evan's does on page 3, before he has used anything.
+  Every page in cold air is logged in `continuity/continuity-ledger.md` before
+  it is inked. One mistake kills the device.
 
 ## What not to draw in Issue #1
 - The hunting outfit, the stakes, the vials, the pendant. Saved.

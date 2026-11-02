@@ -5,28 +5,44 @@ time; the rest sit here until they matter.
 
 ---
 
-## ▶ ASKED NOW (these two change the next deliverable)
+## ✅ Answered 2026-11-02
 
-### Q1 — Evan and Liam look too alike. How do we fix it?
-Both are canon as 17, platinum/white-blond, lean or athletic. At panel size,
-in rain, at night, readers will not reliably tell them apart. This affects
-every page from here, so it should be settled before character designs.
+- **Q1 — Evan and Liam look too alike.** Answered: **both stay platinum**,
+  separated by silhouette, hair value and palette. No canon description
+  changed. Now binding on all character art — `characters/README.md`.
+- **Q2 — What does the power cost?** Answered: **yes to the Cold.** Now canon —
+  `bible/world-rules.md` §2.
 
-- **(a)** Keep both platinum. Separate them with silhouette and colour only —
-  cap + hood vs. bare head + varsity jacket, cool white vs. warm cream hair.
-  Costs nothing in canon; see the table in `characters/README.md`.
-- **(b)** Shift Liam's hair warmer or darker — sandy, dark blond, or blond with
-  dark roots. Clearest fix, but it edits canon.
-- **(c)** Something else Mikey has in mind.
+---
 
-### Q2 — What does the power cost Evan?
-Canon says the limits are open. `bible/world-rules.md` proposes **the Cold**:
-using the power stops him producing body heat, so his breath does not fog, his
-hands are cold, animals avoid him — the same tell the reader learns from the
-monster on page 1. It obstructs the romance physically, links him to the enemy,
-and is cheap to draw.
+## ▶ ASKED NOW (these two gate the next script)
 
-Yes / no / modify. If yes, it becomes canon and gets logged.
+### Q13 — How long does the Cold last, and how does it recover?
+Confirmed already: recovery is slow and physical — he eats constantly, shivers,
+sleeps badly. Not confirmed: what a *single* use costs, and whether repeated
+use in one night compounds.
+
+This decides whether Evan is cold **during** a fight or **for two days
+afterwards**, which are different comics. Rough options:
+
+- **(a) Minutes.** Cold while powered, warm again soon after. Keeps the tell
+  tightly tied to the act — he is only strange when he has just been heroic.
+- **(b) The rest of the night, plus a bad next day.** The cost outlives the
+  fight and lands in the school scenes, where Liam is. Strongest for the
+  romance engine.
+- **(c) Cumulative.** Each use banks cold he has to pay off; a heavy week
+  leaves him permanently cool. Strongest for horror and for Season-long
+  escalation, hardest to track on the page.
+
+### Q14 — Does Evan notice his own breath tell in Issue #1?
+Two different effects, both good:
+
+- **(a) The reader sees it before he does.** Dramatic irony. We watch his
+  breath stop in a panel he is not looking at. Colder, and it makes the reader
+  complicit.
+- **(b) Evan notices.** He sees it in a window or a wing mirror and understands
+  that something in him has changed. Immediate terror, and it gives him a
+  reason to go looking for answers in Issue #2.
 
 ---
 
@@ -37,6 +53,7 @@ Yes / no / modify. If yes, it becomes canon and gets logged.
 | Q3 | Is Evan out at school, out to no one, or between? | Issue #1 pages 4–7 |
 | Q4 | What is in the two vials? | Whenever the hunting outfit is first drawn — Issue #3+ |
 | Q5 | **Why does Evan go to the waterfront on page 14?** Curiosity is too weak. Current best answer: Liam asks him to. | Issue #1 page 14 |
+| Q15 | Can vampires recognise the Cold? A proposal says the page-14 vampire notices Evan does not fog either — which is why it takes an interest. | Issue #1 page 14–15 |
 | Q6 | Does the Slayer heal faster than a human? | Before injuries carry between issues |
 | Q7 | Roz — is the name right, and what is her surname? | Page 1 art |
 | Q8 | Who does Evan live with, and where? | Issue #1 page 3 |

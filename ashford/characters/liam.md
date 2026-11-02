@@ -45,9 +45,29 @@ convenient.
 He should ask Evan a direct question at least once per issue and get a
 non-answer. The reader counts those.
 
-## Appearance note
-See the lookalike problem in `README.md` — Liam and Evan are currently too
-similar to read apart at panel size. Question **Q1**.
+## Appearance [CANON, 2026-11-02]
+
+Stays platinum. Separated from Evan by silhouette and colour, not by hair
+colour:
+
+- Bare head. No cap, ever, in Season 1 — the absence is half the silhouette.
+- Open shape: the varsity jacket's broad shoulders, weight forward.
+- Hair warmer cream-blond with **volume and darker roots** — this is what
+  carries the difference in black and white, where hue cannot help.
+- Rounder face, heavier brow, broader nose.
+- **The red jacket is the only strong colour on a person in Season 1.** In any
+  panel with Evan, the red finds the eye first. That is the design doing the
+  storytelling: Liam is rooted and visible, Evan is not.
+
+Full table in `README.md`.
+
+## What the Cold gives him [CANON knock-on, 2026-11-02]
+
+Liam is the person most likely to touch Evan casually, which makes him the
+first person positioned to notice that Evan's hands are cold. That is now a
+real, physical thread running under the romance from early in Season 1 — the
+closer they get, the more obvious the lie becomes, without anyone writing a
+scene about it.
 
 ## [OPEN]
 - Surname. Not established.

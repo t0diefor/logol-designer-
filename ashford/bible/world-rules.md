@@ -1,7 +1,7 @@
 # World rules — how the supernatural works
 
-Nothing in section 2 is canon yet. It is a proposal, and it is the single most
-important thing waiting on Mikey's decision.
+Section 2 is **canon as of 2026-11-02.** Mikey approved the Cold; it is now a
+confirmed rule and scripts may rely on it.
 
 ---
 
@@ -20,13 +20,13 @@ important thing waiting on Mikey's decision.
 
 ---
 
-## 2. [PROPOSAL] The cost: *the Cold*
+## 2. [CANON] The cost: *the Cold*
 
-**Awaiting Mikey's yes / no / modify. Do not script around it until confirmed.**
+Approved by Mikey, 2026-11-02. This is the series' core mechanic.
 
 The power runs on body heat. When Evan draws on it, he stops producing warmth.
 
-What that looks like on the page, concretely:
+What that looks like on the page, concretely — all four confirmed:
 
 - **His breath stops fogging.** In a town that is cold and wet nine months of
   the year, everyone else's breath plumes and his does not. This is drawable in
@@ -52,7 +52,37 @@ Why this proposal rather than another:
 3. **It is cheap to draw and impossible to forget.** One visual, repeatable,
    unmistakable, and native to a cold wet coastal town. It is not borrowed.
 
-**Compatible add-on, also a proposal:** the power is weakest at slack water —
+### What the Cold now obliges every script to do
+
+1. **Breath is continuity, not atmosphere.** Every panel in cold air is a
+   statement about whether a character is producing heat. Fogging breath is now
+   the most load-bearing visual in Ashford and a single wrong panel undoes it.
+   Checked on every page — see `continuity/continuity-ledger.md`.
+2. **Evan must be shown fogging normally before he ever uses the power.**
+   Issue #1 page 3 (3am, bedroom window, before any use) is the baseline panel.
+   Without it the reader has nothing to notice the change against.
+3. **Heroism is now visible on his body.** The more he does, the more he looks
+   like the thing on the breakwater. No dialogue required.
+
+### [OPEN] The part that is not settled — Q13
+
+How long the Cold lasts, and how it recovers. Confirmed: recovery is slow and
+physical. Not confirmed: whether a single use costs minutes, hours or a night,
+and whether repeated use in one night compounds.
+
+This gates the Issue #1 pages 8–10 and 14–16 scripts, because it decides
+whether Evan is cold *during* a fight or *for the two days afterwards* — a
+completely different issue either way.
+
+### [PROPOSAL] Payoff available inside Issue #1
+
+Page 14–15 needs a reason the vampire takes an interest in Evan rather than
+simply eating him. The Cold supplies one for free: **it notices he does not
+fog either.** The detail the reader learned from the monster on page 1 comes
+back as the monster recognising Evan. No new mythology, no exposition, and it
+closes the issue's loop on the same image it opened with.
+
+**Compatible add-on, still a proposal:** the power is weakest at slack water —
 the twenty minutes at the turn of the tide when nothing is moving. Tide tables
 are public, so both sides can plan around them, which makes the schedule a
 story device rather than an excuse.

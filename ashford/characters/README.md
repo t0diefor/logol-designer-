@@ -13,19 +13,22 @@ Reference images: **none supplied.** See `reference-status.md`.
 
 ---
 
-## ⚠ Two design problems to solve before any character art
+## Design decisions
 
-### 1. Evan and Liam are currently hard to tell apart
+### 1. Evan and Liam — SOLVED [CANON, 2026-11-02]
 
-Both are 17. Both are platinum/white-blond. Both are lean or athletic. In a
-comic — especially in a wide shot, in rain, at night, or at the size a face
-actually prints — that is a genuine readability failure, not a nitpick. A
+**Mikey's decision: both stay platinum. They are separated by silhouette and
+colour, and nothing in either canon description changes.**
+
+The table below is now binding on every piece of character art. The test it
+has to pass: *at postcard size, in black and white, in the rain, can you tell
+which one is speaking?*
+
+Why it needed solving: both are 17, both platinum/white-blond, both lean or
+athletic. In a wide shot, at night, at the size a face actually prints, a
 reader who has to work out which blond boy is speaking stops reading.
 
-Both descriptions are **[CANON]**, so this is not something to fix by quietly
-changing one of them. It is question **Q1** for Mikey.
-
-**[PROPOSAL] — a fix that changes no canon, if Mikey prefers to keep both blond:**
+**The separation, confirmed:**
 
 | | Evan | Liam |
 | --- | --- | --- |
@@ -37,10 +40,26 @@ changing one of them. It is question **Q1** for Mikey.
 
 Even in black-and-white at thumbnail size, cap-plus-hood versus bare-head-plus-
 varsity reads instantly. **The cap is doing the most work of anything in Evan's
-design — he should wear it constantly in Season 1, and the first time he is
-drawn without it should mean something.**
+design — he wears it constantly in Season 1, and the first time he is drawn
+without it must mean something.** [CANON]
 
-### 2. Two doctors
+Two consequences that follow from the decision, now binding:
+
+- **Liam is the only strong colour on a person in Season 1.** Evan is cool and
+  low-contrast and disappears into Ashford; Liam does not. In any panel with
+  both of them, the red finds the eye first. Protect this in the colour pass.
+- **Hair *value* carries the difference in black and white**, since hue cannot:
+  Evan flat and near-white, Liam with visible volume and darker roots. An
+  inker who renders both the same way has broken the decision even if the
+  colourist later fixes it.
+
+### 2. Evan's second tell [CANON, 2026-11-02]
+
+The Cold is now canon (`bible/world-rules.md` §2). Evan therefore has a
+*second* identity cue that is not visual design at all: in cold air, after
+using the power, **his breath does not fog.** Track it on every page.
+
+### 3. Two doctors
 
 **Dr.** Julian Blackwood and **Dr.** Elias Thorne are both men, both
 titled, and both described in sober, clinical terms. Readers will confuse them,

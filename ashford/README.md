@@ -16,8 +16,10 @@ It is five panels, one location, night rain, and it does not require Evan's or
 Liam's final character designs — so it can be drawn while those are still being
 settled. That is why it is first.
 
-**Blocked on two decisions from Mikey** — see `decisions/open-questions.md`,
-questions Q1 and Q2. Neither blocks Page 1.
+**Page 1 is fully unblocked.** Both outstanding decisions were answered on
+2026-11-02: the two leads stay platinum and are separated by silhouette, and
+**the Cold is canon**. Two new questions (Q13, Q14) gate the *next* script —
+pages 2–3 — but nothing blocks Page 1.
 
 ---
 
@@ -58,8 +60,8 @@ ashford/
 | Area | State |
 | --- | --- |
 | Series bible | first pass written |
-| World rules | core mechanic is a **proposal**, not canon |
-| Characters | 5 profiles + supporting cast stubs |
+| World rules | **core mechanic (the Cold) is canon.** Duration open — Q13 |
+| Characters | 5 profiles + supporting cast stubs. Lead design separation settled |
 | Season 1 | shape only — intentionally not outlined in detail |
 | Issue #1 | 16-page beat sheet, labelled draft |
 | Scripts | Page 1 only |

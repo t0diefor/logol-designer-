@@ -6,10 +6,19 @@
 - Begins not knowing vampires exist. Discovers it with the reader.
 - Supernatural strength, reflexes, other classic Slayer abilities.
 - Brave, confident, and secretive because he wants to protect others.
+- **The Cold** [CANON, 2026-11-02]: using the power stops him producing body
+  heat — his breath does not fog, his hands go cold, animals avoid him after
+  heavy use, and recovery is slow and physical. See `bible/world-rules.md` §2.
 
 ### Appearance [CANON]
 Platinum / white-blond hair. Bright blue or gray-blue eyes. Lean build.
 Backwards black-and-white cap. Hoodie and jeans.
+
+**Design separation from Liam [CANON, 2026-11-02].** Hair flat and cool,
+near-white. Narrower face, sharper jaw, thin brows. Compact posture, weight
+back, hands in pockets. Palette strictly black / white / charcoal — he is the
+low-contrast figure who disappears into Ashford, and that is deliberate.
+**The cap is worn in every panel of Season 1.** Full table in `README.md`.
 
 ### Hunting outfit [CANON]
 Dark hoodie · open charcoal jacket · dark cargo trousers · worn dark-brown
@@ -57,7 +66,19 @@ sitcom teenagers are.
 **Dialogue discipline:** he should rarely say what he is feeling. Give the
 feeling to the art.
 
+## What the Cold does to him as a character
+
+Worth stating, now that it is canon: the cost is **legible to other people
+before it is legible to him.** Liam will feel cold hands. Kane will notice he
+does not shiver. A dog will refuse him on Main Street. Evan is the last person
+in Ashford to find out what is happening to his own body, which is a very
+particular kind of horror and it is specific to this series.
+
+It also means his heroism is subtractive. He does not level up — he spends.
+
 ## [OPEN]
+- Q13: How long does the Cold last, and how does it recover?
+- Q14: Does he notice the breath tell in Issue #1, or does the reader see it first?
 - Q3: Is he out at school, out to no one, or somewhere between? This changes
   how pages 4–7 of Issue #1 are written.
 - Who does he live with? Not established, and page 3 of Issue #1 needs it.

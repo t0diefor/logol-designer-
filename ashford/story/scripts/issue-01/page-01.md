@@ -14,12 +14,16 @@ Teach the reader three things without a word of explanation:
    plant coveralls. Not a haunted village.
 2. **The thing in the fog is not human** — and the reader learns it from one
    detail, not from a monster reveal: everyone's breath fogs in this cold.
-   Its breath does not.
+   Its breath does not. **[This is now canon, not atmosphere — the Cold was
+   confirmed 2026-11-02. Panel 4 is teaching the reader the rule that will
+   later apply to Evan himself.]**
 3. **The Slayer can lose.** She is competent, she is calm, she has done this
    before, and it is not enough.
 
-The page also plants the mechanic the whole series will run on, before the
-series has explained that it has one.
+The page plants the mechanic the whole series runs on, before the series has
+explained that it has one. By the time Evan stops fogging, the reader will
+already know what it means — because they learned it here, from the thing that
+killed his predecessor.
 
 ---
 
@@ -153,8 +157,10 @@ expecting to find out what killed her.
 - [ ] Thumbnail the 5-panel grid; confirm panel 5 is the largest
 - [ ] Pencils — check panel 4 reads as a *conversation distance*, not a struggle
 - [ ] Inks — rain direction consistent across all five panels
-- [ ] **Continuity check: breath fogs in panels 2, 4 (Roz only) and 5.
-      The attacker's breath never fogs, anywhere, ever**
+- [ ] **Continuity check — breath. This is the single most important item on
+      the page.** Roz fogs in panels 2, 4 and 5 (thinning to nothing in 5).
+      The attacker never fogs, in any panel, on any page, ever.
+      Log it in `continuity/continuity-ledger.md` → the Breath Log before inking
 - [ ] Flats / colour — orange sodium is the only warm colour on the page
 - [ ] Letters — 11 words, panel 4 stays empty
 - [ ] Log weather + time of day in `continuity/continuity-ledger.md`

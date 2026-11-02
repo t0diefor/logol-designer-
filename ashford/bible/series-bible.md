@@ -20,8 +20,12 @@ Slayer when the previous Slayer dies in Issue #1. He starts out not knowing
 vampires exist. The reader discovers alongside him. [CANON]
 
 **Powers.** Supernatural strength, reflexes, and other classic Slayer
-abilities. Specific limits and mechanics are **not yet established**. [CANON
-that he has them; [OPEN] what they cost]
+abilities. [CANON]
+
+**The cost — the Cold.** Using the power stops Evan producing body heat. His
+breath does not fog, his hands go cold, animals avoid him after heavy use, and
+recovery is slow and physical. [CANON, 2026-11-02] — full rule in
+`world-rules.md`. Duration and recovery curve remain [OPEN], question Q13.
 
 **Watcher.** Dr. Julian Blackwood is Evan's assigned Watcher. Serious,
 sophisticated, knowledgeable about the occult. He initially serves a secret
@@ -96,7 +100,8 @@ does not drift further toward its influences by accident. See
 - Not a monster-of-the-week structure with a reset at the end of each issue.
   Consequences carry.
 - Not a story where the powers solve the problem. The powers are what make the
-  problem personal.
+  problem personal — and since 2026-11-02 they have a price that is paid in
+  Evan's body and shows on the page.
 
 ---
 
@@ -104,8 +109,10 @@ does not drift further toward its influences by accident. See
 
 | ID | Question |
 | --- | --- |
-| Q1 | Evan and Liam are both described as platinum/white-blond, 17, similar build. How do we tell them apart in silhouette? |
-| Q2 | What does using the power cost Evan? (Proposal on the table — see `world-rules.md`.) |
+| ~~Q1~~ | ~~How do we tell Evan and Liam apart?~~ **Answered 2026-11-02: silhouette and colour. Both stay platinum.** |
+| ~~Q2~~ | ~~What does the power cost?~~ **Answered 2026-11-02: the Cold.** |
+| Q13 | How long does the Cold last, and how does it recover? |
+| Q14 | Does Evan notice the breath tell in Issue #1, or does the reader see it first? |
 | Q3 | Is Evan out at school, out to no one, or somewhere between? Affects Issue #1 page 4–7. |
 | Q4 | What is in the two vials on his hunting kit? |
 | Q5 | How long has the Watcher organization been in Ashford, and does the town know anything? |

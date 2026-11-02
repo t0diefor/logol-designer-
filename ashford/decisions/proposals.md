@@ -6,9 +6,11 @@ relevant canon file.
 
 ---
 
-### P1 — The Cold (the power's cost)
+### ~~P1 — The Cold (the power's cost)~~ ✅ ACCEPTED 2026-11-02 — NOW CANON
 Using the power stops Evan producing body heat.
-→ Full case in `bible/world-rules.md` §2. **This is Q2.**
+→ Now a confirmed rule in `bible/world-rules.md` §2. Open sub-question: how
+long it lasts and how it recovers (Q13). The slack-water add-on under it was
+**not** part of the approval and is still a proposal.
 
 ### P2 — The power is local to Ashford
 Not one Slayer in all the world — one Slayer in *this town*, tied to this
